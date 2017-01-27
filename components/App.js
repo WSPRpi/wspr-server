@@ -19,7 +19,6 @@ class App extends React.Component {
 				let spots = await response.json()
 				ref.setState(spots)
 				ref.setState({loading: false})
-				console.log("fetched data")
 			} catch(e) {
 				console.error("failed to retrieve spots: " + e)
 			}

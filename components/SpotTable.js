@@ -7,7 +7,7 @@ class SpotTable extends React.Component {
 	render() {
 		let spots = this.props.spots
 		return (
-<Table>
+<Table striped condensed>
 	<SpotTableHeader/>	
 	<SpotTableBody spots={spots}/>
 </Table>
