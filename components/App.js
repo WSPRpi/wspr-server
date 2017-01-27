@@ -1,8 +1,6 @@
 import React from 'react'
-import AppBar from 'material-ui/AppBar'
-import SpotTable from './SpotTable'
+import AppView from './AppView'
 
-const FETCH_DELAY = 300000
 class App extends React.Component {
 	constructor(props) {
 		super(props)
@@ -11,7 +9,6 @@ class App extends React.Component {
 			spots: [],
 			loading: true
 		}
-		this.timer = null
 	}
 
 	fetchData(ref) {
@@ -27,25 +24,16 @@ class App extends React.Component {
 				console.error("failed to retrieve spots: " + e)
 			}
 		})()
-		this.timer = setInterval(() => this.fetchData(ref), FETCH_DELAY)
 	}
 
 	componentDidMount() {
 		this.fetchData(this)
 	}
 
-	componentWillUnmount() {
-		clearInterval(this.timer)
-	}
-
 	render() {
 		let spots = this.state.spots
-		return (
-<div>
-	<AppBar title="WSPR Spots"/>
-	<SpotTable spots={spots}/>
-</div>
-		)
+		let loading = this.state.loading
+		return <AppView loading={loading} spots={spots}/>
 	}
 }
 
