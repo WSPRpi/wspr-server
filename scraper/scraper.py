@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from requests import Session as WebSession
 from bs4 import BeautifulSoup as TagSoup
 from datetime import datetime, timedelta
 from shelve import open as open_db
 
-URL = 'http://dev.wsprnet.org/drupal/wsprnet/spots'
 PARAMS = {
 	'band': 'All',
 	'count': '1000',
-	'timelimit': '60',
+	'call': '',
+	'reporter': '',
+	'timelimit': '3600',
+	'sortby': 'date',
+	'sortrev': '1',
+	'op': 'Update',
+	'form_id': 'wsprnet_spotquery_form'
 }
+URL = 'http://wsprnet.org/drupal/wsprnet/spotquery'
+
 CULL = timedelta(hours=1)
-REPEAT = 15
+REPEAT = 60
 
 def row_data(row):
 	columns = [column.contents[0].strip() for column in row.contents]
@@ -46,21 +52,11 @@ def row_data(row):
 		'az': az
 	}
 
-def spots():
-	params = urlencode(PARAMS).encode('ascii')
-	request = Request(URL, params)
-	with urlopen(request) as response:
-		soup = TagSoup(response.read(), 'lxml')
-		table = soup.find('table')
-		rows = iter(table.find_all('tr'))
-		next(rows)
-		for row in rows:
-			yield row_data(row)
-
-def spot_key(spot):
-	return repr(sorted(spot.items()))
 
 def write_data(filename, spots):
+	def spot_key(spot):
+		return repr(sorted(spot.items()))
+
 	with open_db(filename) as db:
 		for spot in spots:
 			db[spot_key(spot)] = spot
@@ -70,6 +66,25 @@ def write_data(filename, spots):
 		for k, spot in db.items():
 			if spot['timestamp'] < now - CULL:
 				del db[k]
+
+def spots():
+	#traverse fucking stupid Drupal form thingy
+	session = WebSession()
+
+	#get the correct form build ID
+	form = TagSoup(session.get(URL).text, 'lxml').find_all('form')[-1]
+	id = form.find('input', {'name': 'form_build_id'}).get('value')
+
+	#set it as a parameter, and request the page again
+	PARAMS['form_build_id'] = id
+	response = session.post(URL, data=PARAMS)
+
+	soup = TagSoup(response.text, 'lxml')
+	table = soup.find('table')
+	rows = iter(table.find_all('tr'))
+	next(rows)
+	for row in rows:
+		yield row_data(row)
 
 if __name__ == '__main__':
 	from sched import scheduler as Scheduler
