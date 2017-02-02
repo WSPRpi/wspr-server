@@ -1,7 +1,7 @@
 import React from 'react'
 import FormControl from 'react-bootstrap/lib/FormControl'
 
-class SpotTableSearch extends React.Component {
+class SpotSearch extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {search: ''}
@@ -10,9 +10,8 @@ class SpotTableSearch extends React.Component {
 	}
 
 	handleSearchChange(e) {
-		let search = e.target.value.toUpperCase()
+		let search = e.target.value.trim().toUpperCase()
 		this.setState({search: search})
-		console.log(search)
 
 		this.props.handleResults(this.props.spots.filter((spot) =>
 			(spot.callsign == search) ||
@@ -32,4 +31,4 @@ class SpotTableSearch extends React.Component {
 	}
 }
 
-export default SpotTableSearch
+export default SpotSearch

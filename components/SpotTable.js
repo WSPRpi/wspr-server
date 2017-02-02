@@ -5,11 +5,11 @@ import SpotTableBody from './SpotTableBody'
 
 class SpotTable extends React.Component {
 	render() {
-		let spots = this.props.spots
+		let results = this.props.results
 		return (
 <Table striped condensed>
 	<SpotTableHeader/>	
-	<SpotTableBody spots={spots}/>
+	<SpotTableBody results={results}/>
 </Table>
 		)
 	}
