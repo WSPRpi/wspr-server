@@ -1,7 +1,8 @@
 import React from 'react'
 import Alert from 'react-bootstrap/lib/Alert'
-import Col from 'react-bootstrap/lib/Col'
+import Grid from 'react-bootstrap/lib/Grid'
 import Navbar from 'react-bootstrap/lib/Navbar'
+import 'bootstrap/dist/css/bootstrap.css'
 
 import AppTabs from './AppTabs'
 import SpotSearch from './SpotSearch'
@@ -10,12 +11,17 @@ class AppView extends React.Component {
 	constructor(props) {
 		super(props)
 
-		this.state = {results: []}
+		this.state = {results: [], activeTab: 1}
 		this.handleSearch = this.handleSearch.bind(this)
+		this.handleTab = this.handleTab.bind(this)
 	}
 
 	handleSearch(results) {
 		this.setState({results})
+	}
+
+	handleTab(activeTab) {
+		this.setState({activeTab})
 	}
 
 	render() {
@@ -27,19 +33,14 @@ class AppView extends React.Component {
 <div>
 	<Navbar>
 		<Navbar.Header>
-			<Navbar.Brand>WSPR Spots</Navbar.Brand>
+			<Navbar.Brand>WSPR</Navbar.Brand>
 		</Navbar.Header>
 	</Navbar>
 	{loading && <Alert bsStyle="info">Loading spot data...</Alert>}
-	<Col lg={2}>
-		<SpotSearch
-			handleResults={this.handleSearch}
-			spots={spots}
-		/>
-	</Col>
-	<Col lg={10}>
+	<SpotSearch handleResults={this.handleSearch} spots={spots}/>
+	<Grid fluid={true}>
 		<AppTabs spots={spots} results={results}/>
-	</Col>
+	</Grid>
 </div>
 		)
 	}

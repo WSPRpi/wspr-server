@@ -13,15 +13,16 @@ class App extends React.Component {
 
 	fetchData(ref) {
 		(async () => {
+			let spots;
 			try {
 				this.setState({loading: true})
 				let response = await fetch('/spots')
-				let spots = await response.json()
-				ref.setState(spots)
-				ref.setState({loading: false})
+				spots = await response.json()
 			} catch(e) {
 				console.error("failed to retrieve spots: " + e)
 			}
+			ref.setState(spots)
+			ref.setState({loading: false})
 		})()
 	}
 

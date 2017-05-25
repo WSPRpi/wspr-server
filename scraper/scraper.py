@@ -18,7 +18,7 @@ PARAMS = {
 }
 URL = 'http://wsprnet.org/drupal/wsprnet/spotquery'
 
-CULL = timedelta(hours=1)
+CULL = timedelta(days=30)
 REPEAT = 60
 
 def row_data(row):
@@ -92,7 +92,8 @@ if __name__ == '__main__':
 
 	schedule = Scheduler(time, sleep)
 	def run():
-		write_data('spot-cache.db', spots())
+		data = spots()
+		write_data('spot-cache.db', data)
 		print("data written, next in {}s...".format(REPEAT))
 		schedule.enter(REPEAT, 1, run)
 

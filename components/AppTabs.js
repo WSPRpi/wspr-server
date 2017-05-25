@@ -3,6 +3,7 @@ import Tab from 'react-bootstrap/lib/Tab'
 import Tabs from 'react-bootstrap/lib/Tabs'
 
 import SpotTablePane from './SpotTablePane'
+import SpotMap from './SpotMap'
 
 class AppTabs extends React.Component {
 	render() {
@@ -14,6 +15,9 @@ class AppTabs extends React.Component {
 <Tabs id="application-tabs">
 	<Tab eventKey={1} title="Spots">
 		<SpotTablePane results={results}/>
+	</Tab>
+	<Tab eventKey={2} title="Map" onEntering={() => this.map.redraw()}>
+		<SpotMap results={results} ref={map => this.map = map}/>
 	</Tab>
 </Tabs>
 		)

@@ -13,6 +13,14 @@ module.exports = {
 				query: {
 					presets: ['es2017', 'react']
 				}
+			},
+			{
+				test: /\.css$/,
+				loader: 'style-loader!css-loader'
+			},
+			{
+				test: /\.(png|svg|ttf|woff|woff2|eot)$/,
+				loader: 'url-loader',
 			}
 		]
 	}
