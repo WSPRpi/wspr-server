@@ -2,8 +2,8 @@
 
 from requests import Session as WebSession
 from bs4 import BeautifulSoup as TagSoup
-from datetime import datetime, timedelta
-from shelve import open as open_db
+from datetime import datetime
+import sqlite3 as sql
 
 PARAMS = {
 	'band': 'All',
@@ -18,7 +18,9 @@ PARAMS = {
 }
 URL = 'http://wsprnet.org/drupal/wsprnet/spotquery'
 
-CULL = timedelta(days=30)
+# 30-day cull
+CULL = 30 * 24 * 60 * 60
+# wait 60 seconds between queries
 REPEAT = 60
 
 def row_data(row):
@@ -52,21 +54,6 @@ def row_data(row):
 		'az': az
 	}
 
-
-def write_data(filename, spots):
-	def spot_key(spot):
-		return repr(sorted(spot.items()))
-
-	with open_db(filename) as db:
-		for spot in spots:
-			db[spot_key(spot)] = spot
-
-		# wipe out old records
-		now = datetime.now()
-		for k, spot in db.items():
-			if spot['timestamp'] < now - CULL:
-				del db[k]
-
 def spots():
 	#traverse fucking stupid Drupal form thingy
 	session = WebSession()
@@ -86,14 +73,57 @@ def spots():
 	for row in rows:
 		yield row_data(row)
 
+def write_data(filename, spots):
+	schema = '''
+CREATE TABLE IF NOT EXISTS spots (
+	timestamp INTEGER,
+	callsign TEXT,
+	mhz REAL,
+	snr INTEGER,
+	drift INTEGER,
+	grid TEXT,
+	power REAL,
+	reporter TEXT,
+	reporter_grid TEXT,
+	km INTEGER,
+	az INTEGER,
+
+	PRIMARY KEY (callsign, reporter, timestamp, mhz)
+	ON CONFLICT REPLACE
+)
+'''
+
+	connection = sql.connect(filename)
+	cursor = connection.cursor()
+	cursor.execute(schema)
+	cursor.executemany('''
+INSERT INTO spots VALUES (
+	STRFTIME('%s', DATETIME(:timestamp)),
+	:callsign,
+	:mhz,
+	:snr,
+	:drift,
+	:grid,
+	:power,
+	:reporter,
+	:reporter_grid,
+	:km,
+	:az
+)
+	''', spots)
+	cursor.execute('''
+DELETE FROM spots WHERE STRFTIME('%s', 'now') - timestamp > :cull
+	''', {'cull': CULL})
+	connection.commit()
+	connection.close()
+
 if __name__ == '__main__':
 	from sched import scheduler as Scheduler
 	from time import time, sleep
 
 	schedule = Scheduler(time, sleep)
 	def run():
-		data = spots()
-		write_data('spot-cache.db', data)
+		write_data('spot-cache.db', spots())
 		print("data written, next in {}s...".format(REPEAT))
 		schedule.enter(REPEAT, 1, run)
 

@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
 from flask import Flask, jsonify, render_template
-from shelve import open as open_db
+import sqlite3 as sql
 server = Flask(__name__)
-
-def format_spot(spot):
-	spot['timestamp'] = int(spot['timestamp'].timestamp())
-	return spot
 
 @server.route('/spots')
 def spots():
-	with open_db('spot-cache.db') as db:
-		return jsonify({
-			'spots': [format_spot(spot) for spot in db.values()]
-		})
+	connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
+	connection.row_factory = sql.Row
+	cursor = connection.cursor()
+	rows = cursor.execute('SELECT * FROM spots')
+	return jsonify({
+		'spots': [dict(r) for r in rows]
+	})
 
 @server.route('/')
 def home():
