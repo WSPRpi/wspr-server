@@ -3,10 +3,8 @@ import SpotTable from './SpotTable'
 
 class SpotTablePane extends React.Component {
 	render() {
-		let results = this.props.results
-
 		return (
-<SpotTable results={results}/>
+<SpotTable spots={this.props.spots}/>
 		)
 	}
 }

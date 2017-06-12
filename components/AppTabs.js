@@ -7,17 +7,15 @@ import SpotMap from './SpotMap'
 
 class AppTabs extends React.Component {
 	render() {
-		let loading = this.props.loading
 		let spots = this.props.spots
-		let results = this.props.results
 
 		return (
 <Tabs id="application-tabs">
 	<Tab eventKey={1} title="Spots">
-		<SpotTablePane results={results}/>
+		<SpotTablePane spots={spots}/>
 	</Tab>
 	<Tab eventKey={2} title="Map" onEntering={() => this.map.redraw()}>
-		<SpotMap results={results} ref={map => this.map = map}/>
+		<SpotMap spots={spots} ref={map => this.map = map}/>
 	</Tab>
 </Tabs>
 		)

@@ -1,39 +1,40 @@
 import React from 'react'
-import FormControl from 'react-bootstrap/lib/FormControl'
+
 import FormGroup from 'react-bootstrap/lib/FormGroup'
+import FormControl from 'react-bootstrap/lib/FormControl'
+import TagsInput from 'react-tagsinput'
+import 'react-tagsinput/react-tagsinput.css'
 
 class SpotSearch extends React.Component {
 	constructor(props) {
 		super(props)
-		this.state = {search: ''}
+		this.state = {tags: [], input: ''}
 
-		this.handleSearchChange = this.handleSearchChange.bind(this)
+		this.handleInputChange = this.handleInputChange.bind(this)
+		this.handleTagChange = this.handleTagChange.bind(this)
 	}
 
-	handleSearchChange(e) {
-		let search = e.target.value.trim().toUpperCase()
-		this.setState({search: search})
+	handleInputChange(input) {
+		this.setState({
+			input: input.trimLeft().trimRight().toUpperCase()
+		})
+	}
 
-		let results = this.props.spots.filter(spot =>
-			(spot.callsign == search) ||
-			(spot.reporter == search)
-		).map(result => Object.assign({}, result, {
-			us: result.reporter == search
-		}));
-		this.props.handleResults(results);
+	handleTagChange(tags) {
+		this.setState({tags})
+		this.props.handleSearch(tags);
 	}
 
 	render() {
 		return (
-<FormGroup>
-	<FormControl
-		type="text"
-		value={this.state.search}
-		placeholder="Search for a callsign..."
-		onChange={this.handleSearchChange}
-	/>
-</FormGroup>
-		)
+<TagsInput
+	inputValue={this.state.input}
+	onChangeInput={this.handleInputChange}
+	value={this.state.tags}
+	onChange={this.handleTagChange}
+	inputProps={{placeholder: ''}}
+/>
+		);
 	}
 }
 

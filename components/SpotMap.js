@@ -6,14 +6,14 @@ import SpotMapMarker from './SpotMapMarker'
 class SpotMap extends React.Component {
 	render() {
 		const bounds = [[-90, -180], [90, 180]];
-		let results = this.props.results;
+		let spots = this.props.spots;
 
-		let markers = results.map((spot, key) =>
+		let markers = spots.map((spot, key) =>
 <SpotMapMarker key={key + 1} spot={spot} home={false}/>
 		);
-		if(results.length != 0) {
+		if(spots.length != 0) {
 			markers.push(
-<SpotMapMarker key={0} spot={results[0]} home={true}/>
+<SpotMapMarker key={0} spot={spots[0]} home={true}/>
 			);
 		}
 
