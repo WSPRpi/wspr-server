@@ -1,12 +1,60 @@
 <!doctype html>
-<html>
+<html lang="en">
  <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="{{ url_for('static', filename='bundle.js') }}"></script>
   <title>WSPR</title>
  </head>
  <body>
-  <div id="root"></div>
-  <script src="{{ url_for('static', filename='bundle.js') }}"></script>
+  <nav class="navbar navbar-default">
+   <div class="navbar-brand">WSPR</div>
+   <form class="navbar-form" role="search">
+    <input class="form-control"
+     type="text"
+     id="callsign-select"
+     class="form-control"
+     placeholder="Add Callsigns"
+    >
+    </select>
+   </form>
+  </nav>
+  <nav>
+   <ul class="nav nav-tabs">
+    <li class="active" role="presentation">
+     <a data-toggle="tab" href="#spot-table-tab">Spot Table</a>
+    </li>
+    <li role="presentation">
+     <a data-toggle="tab" href="#spot-map-tab">Map etc</a>
+    </li>
+   </ul>
+  </nav>
+  <div class="tab-content">
+   <div id="spot-table-tab" class="tab-pane active">
+    <table class="table table-striped">
+     <thead>
+      <tr>
+       <th>Time</th>
+       <th>Call</th>
+       <th>Frequency (MHz)</th>
+       <th>SNR</th>
+       <th>Drift</th>
+       <th>Grid</th>
+       <th>Power (W)</th>
+       <th>Reporter</th>
+       <th>Reporter Grid</th>
+       <th>Distance (km)</th>
+       <th>Azimuth</th>
+      </tr>
+     </thead>
+     <tbody id="spot-table">
+     </tbody>
+    </table>
+   </div>
+   <div id="spot-map-tab" class="tab-pane">
+    <svg id="spot-map"></svg>
+   </div>
+  </div>
  </body>
 </html>

@@ -13,7 +13,6 @@
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
     "babel-preset-es2017": "^6.22.0",
-    "babel-preset-react": "^6.22.0",
     "css-loader": "^0.28.1",
     "file-loader": "^0.11.1",
     "style-loader": "^0.17.0",
@@ -22,13 +21,11 @@
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "bootstrap-tagsinput": "^0.7.1",
+    "d3": "^4.9.1",
     "date-format": "^1.0.0",
-    "leaflet": "^1.0.3",
+    "jquery": "^3.2.1",
     "maidenhead": "^1.0.7",
-    "react": "^15.4.2",
-    "react-bootstrap": "^0.30.7",
-    "react-dom": "^15.4.2",
-    "react-leaflet": "^1.1.0",
-    "react-tagsinput": "^3.17.0"
+    "topojson": "^3.0.0"
   }
 }

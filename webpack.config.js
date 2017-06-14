@@ -1,5 +1,5 @@
 module.exports = {
-	entry: './index.js',
+	entry: './frontend/index.js',
 	output: {
 		filename: "server/static/bundle.js"
 	},
@@ -11,7 +11,7 @@ module.exports = {
 				loader: 'babel-loader',
 				exclude: /node_modules/,
 				query: {
-					presets: ['es2017', 'react']
+					presets: ['es2017']
 				}
 			},
 			{
@@ -19,8 +19,8 @@ module.exports = {
 				loader: 'style-loader!css-loader'
 			},
 			{
-				test: /\.(png|svg|ttf|woff|woff2|eot)$/,
-				loader: 'url-loader',
+				test: /\.(eot|ttf|svg|woff|woff2)$/,
+				loader: 'url-loader'
 			}
 		]
 	}
