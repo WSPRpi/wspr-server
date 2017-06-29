@@ -1,35 +1,39 @@
 #!/usr/bin/env python3
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, request, jsonify, render_template
 from werkzeug.routing import BaseConverter
 import sqlite3 as sql
 
 server = Flask(__name__)
 
-class ListConverter(BaseConverter):
-	def to_python(self, value):
-		return value.split('+')
+def connect():
+	return sql.connect('file:spot-cache.db?mode=ro', uri=True)
 
-	def to_url(self, values):
-		return '+'.join(BaseConverter.to_url(v) for v in values)
+@server.route('/callsigns')
+def callsigns():
+	query = '''
+SELECT callsign FROM spots UNION SELECT reporter FROM spots
+	'''
 
-server.url_map.converters['list'] = ListConverter
+	connection = connect()
+	rows = connection.execute(query)
+	callsigns = [r[0] for r in rows]
 
-@server.route('/spots/<list:callsigns>')
-def spots(callsigns):
+	return jsonify({'callsigns': callsigns})
+
+@server.route('/spots', methods=['POST'])
+def spots():
+	callsigns = request.json['callsigns']
 	query = '''
 SELECT * FROM spots WHERE callsign IN ({ps}) OR reporter IN ({ps})
 	'''.format(ps=', '.join(['?'] * len(callsigns)))
 
-	connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
+	connection = connect()
 	connection.row_factory = sql.Row
-	rows = connection.execute(
-		query,
-		callsigns + callsigns
-	)
-	return jsonify({
-		'spots': [dict(r) for r in rows]
-	})
+	rows = connection.execute(query, callsigns + callsigns)
+	spots = [dict(r) for r in rows]
+
+	return jsonify({'spots': spots})
 
 @server.route('/')
 def home():

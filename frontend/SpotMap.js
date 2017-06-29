@@ -17,27 +17,34 @@ class SpotMap {
 	}
 
 	redraw() {
+		let width = $(window).width()
 		let height = $(window).height() - $(this.container).offset().top
 
 		let map = d3.select(this.container)
-			.attr('width', '100%')
+			.attr('width', width + 'px')
 			.attr('height', height + 'px')
-			.style('background-color', '#eee')
+			.style('background-color', 'white')
 		map.selectAll('*').remove()
 
 		let projection = azimuthal()
-			.scale(150)
 			.translate([width / 2, height / 2])
+			.rotate([74, -40.7, 0])
 
 		let path = d3.geoPath().projection(projection)
 		let subunits = feature(
 			this.world_data,
 			this.world_data.objects.countries
 		)
+		map.append('circle')
+			.attr('cx', width / 2)
+			.attr('cy', height / 2)
+			.attr('r', '250px')
+			.attr('fill', 'blue')
+
 		map.append('path')
 			.datum(subunits)
 			.attr('d', path)
-			.style('fill', 'grey')
+			.style('fill', '#229922')
 			.style('stroke', '#eee')
 
 		this.spots.forEach(spot => {
@@ -48,6 +55,7 @@ class SpotMap {
 				.attr('cy', cy)
 				.attr('r', '5px')
 		})
+
 	}
 
 	update(spots) {

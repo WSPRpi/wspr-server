@@ -41,9 +41,21 @@ class App {
 		(async (ref) => {
 			let spots
                         try {
-				let query = '/spots/' + this.callsigns.join('+')
-                                let response = await fetch(query)
+				let callsigns = this.callsigns.join('+')
+				let headers = {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				}
+
+                                let response = await fetch('/spots', {
+					headers: headers,
+					method: 'POST',
+					body: JSON.stringify({
+						callsigns: this.callsigns
+					})
+				})
                                 let data = await response.json()
+
 				this.spots = data.spots
 				this.update()
                         } catch(e) {
