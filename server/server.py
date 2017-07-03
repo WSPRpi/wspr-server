@@ -1,43 +1,56 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request, jsonify, render_template
-from werkzeug.routing import BaseConverter
+from threading import Thread
+import socket
+
+import tornado.escape
+import tornado.ioloop
+import tornado.web
 import sqlite3 as sql
 
-server = Flask(__name__)
-
-def connect():
-	return sql.connect('file:spot-cache.db?mode=ro', uri=True)
-
-@server.route('/callsigns')
-def callsigns():
-	query = '''
-SELECT callsign FROM spots UNION SELECT reporter FROM spots
-	'''
-
-	connection = connect()
-	rows = connection.execute(query)
-	callsigns = [r[0] for r in rows]
-
-	return jsonify({'callsigns': callsigns})
-
-@server.route('/spots', methods=['POST'])
-def spots():
-	callsigns = request.json['callsigns']
-	query = '''
+class SpotHandler(tornado.web.RequestHandler):
+	def post(self):
+		params = tornado.escape.json_decode(self.request.body)
+		callsigns = params['callsigns']
+		query = '''
 SELECT * FROM spots WHERE callsign IN ({ps}) OR reporter IN ({ps})
-	'''.format(ps=', '.join(['?'] * len(callsigns)))
+		'''.format(ps=', '.join(['?'] * len(callsigns)))
 
-	connection = connect()
-	connection.row_factory = sql.Row
-	rows = connection.execute(query, callsigns + callsigns)
-	spots = [dict(r) for r in rows]
+		connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
+		connection.row_factory = sql.Row
+		rows = connection.execute(query, callsigns + callsigns)
+		spots = [dict(r) for r in rows]
+		self.write(tornado.escape.json_encode({'spots': spots}))
 
-	return jsonify({'spots': spots})
+def handle_stdin(input):
+	command = input[0:2]
 
-@server.route('/')
-def home():
-	return render_template('index.html')
+	if command == 'HO':
+		hostname = socket.gethostname()
+		print("HO{};".format(hostname))
+	elif command == 'IP':
+		ip = socket.gethostbyname(socket.gethostname())
+		print("IP{};".format(ip))
+	else:
+		raise NotImplementedError()
+
+def report_stdin():
+	while True:
+		command = input()
+		tornado.ioloop.IOLoop.current().add_callback(handle_stdin, command)
 
 if __name__ == '__main__':
-	server.run()
+	app = tornado.web.Application([
+		(r'/()', tornado.web.StaticFileHandler, {
+			'path': 'server/',
+			'default_filename': 'index.html'
+		}),
+		(r'/static/(.*)', tornado.web.StaticFileHandler, {
+			'path': 'server/static/'
+		}),
+		(r'/spots', SpotHandler),
+	])
+	app.listen(8080)
+
+	Thread(target=report_stdin).start()
+	tornado.ioloop.IOLoop.current().start()
