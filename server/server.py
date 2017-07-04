@@ -7,6 +7,9 @@ import tornado.escape
 import tornado.ioloop
 import tornado.web
 import sqlite3 as sql
+import serial
+import time
+
 
 class SpotHandler(tornado.web.RequestHandler):
 	def post(self):
@@ -22,21 +25,27 @@ SELECT * FROM spots WHERE callsign IN ({ps}) OR reporter IN ({ps})
 		spots = [dict(r) for r in rows]
 		self.write(tornado.escape.json_encode({'spots': spots}))
 
-def handle_stdin(input):
-	command = input[0:2]
-
+def handle_stdin(rx_data):
+	command = rx_data[0:2].decode('ascii')	
 	if command == 'HO':
 		hostname = socket.gethostname()
-		print("HO{};".format(hostname))
+		ser.write(('HO'+hostname+';').encode('ascii'))
 	elif command == 'IP':
 		ip = socket.gethostbyname(socket.gethostname())
-		print("IP{};".format(ip))
+		ser.write(('IP'+ip+';').encode('ascii'))
 	else:
 		raise NotImplementedError()
 
-def report_stdin():
+def report_serial():
+	ser = serial.Serial(
+		port='/dev/ttyAMA0',
+		baudrate=115200,
+		parity=serial.PARITY_NONE,
+		stopbits=serial.STOPBITS_ONE,
+		bytesize=serial.EIGHTBITS,
+	)
 	while True:
-		command = input()
+		command = ser.readline()
 		tornado.ioloop.IOLoop.current().add_callback(handle_stdin, command)
 
 if __name__ == '__main__':
@@ -52,5 +61,5 @@ if __name__ == '__main__':
 	])
 	app.listen(8080)
 
-	Thread(target=report_stdin).start()
+	Thread(target=report_serial).start()
 	tornado.ioloop.IOLoop.current().start()
