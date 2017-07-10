@@ -23,9 +23,9 @@
     "bootstrap": "^3.3.7",
     "bootstrap-tagsinput": "^0.7.1",
     "d3": "^4.9.1",
-    "date-format": "^1.0.0",
     "jquery": "^3.2.1",
     "maidenhead": "^1.0.7",
+    "moment": "^2.18.1",
     "topojson": "^3.0.0"
   }
 }

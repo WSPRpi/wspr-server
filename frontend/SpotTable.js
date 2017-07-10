@@ -1,4 +1,4 @@
-import format from 'date-format'
+import moment from 'moment'
 
 class SpotTable {
 	constructor(props) {
@@ -9,10 +9,11 @@ class SpotTable {
 	}
 
 	update(spots) {
-		let renderTime = (time => format.asString(
-			'hh:mm dd/MM/yy',
-			new Date(1000 * time)
-		))
+		let renderTime = (time => moment
+			.unix(time)
+			.utc()
+			.format('YYYY-MM-DD hh:mm')
+		)
 
 		let html = spots
 			.map(spot => (

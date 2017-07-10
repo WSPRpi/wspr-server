@@ -13,12 +13,16 @@ class SpotMap {
 		this.world_data = require('./world.geo.json')
 		this.spots = []
 
-		this.redraw()
+		this.update(this.spots)
 	}
 
 	redraw() {
-		let width = $(window).width()
-		let height = $(window).height() - $(this.container).offset().top
+		// 5-pixel bodge. So hang me.
+		let width = $(window).width() - 5
+		let height =
+			$(window).height() -
+			$(this.container).offset().top -
+			5
 
 		let map = d3.select(this.container)
 			.attr('width', width + 'px')
@@ -39,13 +43,14 @@ class SpotMap {
 			.attr('cx', width / 2)
 			.attr('cy', height / 2)
 			.attr('r', '250px')
-			.attr('fill', 'blue')
+			.attr('fill', '#2222aa')
 
 		map.append('path')
 			.datum(subunits)
 			.attr('d', path)
-			.style('fill', '#229922')
-			.style('stroke', '#eee')
+			.style('fill', '#aaaa22')
+			.style('stroke-width', '1px')
+			.style('stroke', '#111')
 
 		this.spots.forEach(spot => {
 			let [lat, lon] = Maidenhead.toLatLon(spot.reporter_grid)
