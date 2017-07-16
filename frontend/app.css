@@ -1,0 +1,6 @@
+// stop map overflowing stuff for some reason
+#spot-map-tab
+{
+	max-width: 100%;
+	max-height: 100%;
+}

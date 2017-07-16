@@ -1,7 +1,9 @@
 import SpotSearch from './SpotSearch'
 import SpotTable from './SpotTable'
 import SpotMap from './SpotMap'
+import QTHMap from './QTHMap'
 
+import Maidenhead from 'maidenhead'
 import $ from 'jquery'
 
 class App {
@@ -26,6 +28,19 @@ class App {
 
 		this.map = new SpotMap({
 			map: '#spot-map'
+		})
+
+		this.qth = new QTHMap({
+			map: '#qth-map'
+		})
+
+		$('#spot-map-link').on('shown.bs.tab', e =>
+		{
+			this.map.redraw()
+		})
+		$('#qth-map-link').on('shown.bs.tab', e =>
+		{
+			this.qth.redraw()
 		})
 
 		this.update()
@@ -57,16 +72,32 @@ class App {
                                 let data = await response.json()
 
 				this.spots = data.spots
-				this.update()
                         } catch(e) {
                                 console.error("failed to retrieve spots: " + e)
                         }
+			finally {
+				this.update()
+			}
 		})(this)
 	}
 
 	update() {
 		this.table.update(this.spots)
-		this.map.update(this.spots)
+
+		let map_data = this.spots.map(s => ({
+			from_location: Maidenhead.toLatLon(s.grid).reverse(),
+			to_location: Maidenhead.toLatLon(s.reporter_grid).reverse()
+		}))
+		this.map.update(map_data)
+
+		let qth_data = Array.concat(this.spots.map(s => ({
+			location: Maidenhead.toLatLon(s.grid),
+			callsign: s.callsign
+		})), this.spots.map(s => ({
+			location: Maidenhead.toLatLon(s.reporter_grid),
+			callsign: s.reporter
+		})))
+		this.qth.update(qth_data)
 	}
 }
 
