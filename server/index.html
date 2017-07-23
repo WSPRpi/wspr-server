@@ -10,6 +10,11 @@
  <body>
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
+   <ul class="nav navbar-nav">
+    <li><a href="#/table">Spot Table</a>
+    <li><a href="#/spot-map">Spot Map</a>
+    <li><a href="#/qth-map">QTH Map</a>
+   </ul>
    <form class="navbar-form" role="search">
     <input
      id="callsign-select"
@@ -21,47 +26,32 @@
     >
    </form>
   </nav>
-  <nav>
-   <ul class="nav nav-tabs">
-    <li class="active" role="presentation">
-     <a data-toggle="tab" href="#spot-table-tab">Spot Table</a>
-    </li>
-    <li role="presentation">
-     <a id="spot-map-link" data-toggle="tab" href="#spot-map-tab">Spot Map</a>
-    </li>
-    <li role="presentation">
-     <a id="qth-map-link" data-toggle="tab" href="#qth-map-tab">QTH Map</a>
-    </li>
-   </ul>
-  </nav>
-  <div class="tab-content">
-   <div id="spot-table-tab" class="tab-pane active">
-    <table class="table table-striped">
-     <thead>
-      <tr>
-       <th>UTC</th>
-       <th>Call</th>
-       <th>Frequency (MHz)</th>
-       <th>SNR</th>
-       <th>Drift</th>
-       <th>Grid</th>
-       <th>Power (W)</th>
-       <th>Reporter</th>
-       <th>Reporter Grid</th>
-       <th>Distance (km)</th>
-       <th>Azimuth</th>
-      </tr>
-     </thead>
-     <tbody id="spot-table">
-     </tbody>
-    </table>
-   </div>
-   <div id="spot-map-tab" class="tab-pane">
-    <svg id="spot-map"></svg>
-   </div>
-   <div id="qth-map-tab" class="tab-pane">
-    <div id="qth-map"></div>
-   </div>
+  <div id="spot-table-page" class="page">
+   <table class="table table-striped">
+    <thead>
+     <tr>
+      <th>UTC</th>
+      <th>Call</th>
+      <th>Frequency (MHz)</th>
+      <th>SNR</th>
+      <th>Drift</th>
+      <th>Grid</th>
+      <th>Power (W)</th>
+      <th>Reporter</th>
+      <th>Reporter Grid</th>
+      <th>Distance (km)</th>
+      <th>Azimuth</th>
+     </tr>
+    </thead>
+    <tbody id="spot-table">
+    </tbody>
+   </table>
+  </div>
+  <div id="spot-map-page" class="page">
+   <svg id="spot-map"></svg>
+  </div>
+  <div id="qth-map-page" class="page">
+   <div id="qth-map"></div>
   </div>
  </body>
 </html>

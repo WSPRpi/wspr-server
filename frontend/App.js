@@ -5,58 +5,76 @@ import QTHMap from './QTHMap'
 
 import Maidenhead from 'maidenhead'
 import $ from 'jquery'
+import HashRouter from 'hash-router'
+
+function latlonAverage(spots) {
+	let lat = spots.reduce(
+		(a, s) => a + s.from_location[0] + s.to_location[0],
+		0
+	) / (2 * spots.length)
+	let lon = spots.reduce(
+		(a, s) => a + s.from_location[1] + s.to_location[1],
+		0
+	) / (2 * spots.length)
+	console.log(lat, lon)
+	return [lat, lon]
+}
 
 class App {
 	constructor() {
 		this.fetchData = this.fetchData.bind(this)
 		this.update = this.update.bind(this)
-
-		this.callsigns = []
 		this.spots = []
 
 		this.search = new SpotSearch({
 			select: $('#callsign-select'),
-			onUpdate: callsigns => {
-				this.callsigns = callsigns
-				this.fetchData()
-			}
+			onUpdate: callsigns => this.fetchData(callsigns)
 		})
-
 		this.table = new SpotTable({
-			table: $('#spot-table')
+			table: '#spot-table'
 		})
-
 		this.map = new SpotMap({
 			map: '#spot-map'
 		})
-
 		this.qth = new QTHMap({
 			map: '#qth-map'
 		})
 
-		$('#spot-map-link').on('shown.bs.tab', e =>
-		{
-			this.map.redraw()
-		})
-		$('#qth-map-link').on('shown.bs.tab', e =>
-		{
-			this.qth.redraw()
-		})
 
-		this.update()
+		// setup routing
+		let routeTable = () => {
+			$('.page').hide()
+			$('#spot-table-page').show()
+		}
+		let routeSpotMap = () => {
+			$('.page').hide()
+			$('#spot-map-page').show()
+			this.map.draw()
+		}
+		let routeQTHMap = () => {
+			$('.page').hide()
+			$('#qth-map-page').show()
+			this.qth.draw()
+		}
+
+		let router = HashRouter()
+		router.addRoute("#/", routeTable)
+		router.addRoute("#/table", routeTable)
+		router.addRoute("#/spot-map", routeSpotMap)
+		router.addRoute("#/qth-map", routeQTHMap)
+		window.addEventListener("hashchange", router)
+		router()
 	}
 
-	fetchData() {
-		if(this.callsigns.length == 0) {
+	fetchData(callsigns) {
+		if(callsigns.length == 0) {
 			this.spots = []
 			this.update()
 			return
 		}
 
 		(async (ref) => {
-			let spots
                         try {
-				let callsigns = this.callsigns.join('+')
 				let headers = {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'
@@ -65,12 +83,9 @@ class App {
                                 let response = await fetch('/spots', {
 					headers: headers,
 					method: 'POST',
-					body: JSON.stringify({
-						callsigns: this.callsigns
-					})
+					body: JSON.stringify({callsigns})
 				})
                                 let data = await response.json()
-
 				this.spots = data.spots
                         } catch(e) {
                                 console.error("failed to retrieve spots: " + e)
@@ -82,13 +97,15 @@ class App {
 	}
 
 	update() {
-		this.table.update(this.spots)
+		let table_data = this.spots
+		this.table.update(table_data)
 
 		let map_data = this.spots.map(s => ({
 			from_location: Maidenhead.toLatLon(s.grid).reverse(),
 			to_location: Maidenhead.toLatLon(s.reporter_grid).reverse()
 		}))
-		this.map.update(map_data)
+		let map_centre = latlonAverage(map_data)
+		this.map.update(map_data, map_centre)
 
 		let qth_data = Array.concat(this.spots.map(s => ({
 			location: Maidenhead.toLatLon(s.grid),

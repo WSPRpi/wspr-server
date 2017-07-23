@@ -5,36 +5,41 @@ import $ from 'jquery'
 
 class SpotMap {
 	constructor(props) {
-		this.redraw = this.redraw.bind(this)
+		this.drawMap = this.drawMap.bind(this)
+		this.drawSpots = this.drawSpots.bind(this)
+		this.drawZoom = this.drawZoom.bind(this)
+		this.draw = this.draw.bind(this)
+		this.onZoom = this.onZoom.bind(this)
 		this.update = this.update.bind(this)
-		this.zoom = this.zoom.bind(this)
 
 		this.container = props.map
-		this.world_data = require('./world.geo.json')
 		this.spots = []
+		this.centre = [0, 0]
+		this.transform = d3.zoomIdentity
+		this.projection = null
 
 		this.map = d3.select(this.container)
 			.style('background-color', '#aaa')
-			.style('pointer-events', 'all')
-			.call(
-				d3.zoom()
-					.scaleExtent([1/2, 50])
-					.on("zoom", this.zoom)
+			.call(d3.zoom()
+				.on("zoom", this.onZoom)
 			)
 
-		let width = $(window).width()
-		let height = $(window).height() - $(this.container).offset().top
-		let centre = this.spots.map(
-		this.projection = azimuthal()
-			.translate([width / 2, height / 2])
-			.rotate([74, -40.7, 0])
+		this.draw()
+		window.addEventListener("resize", this.draw)
+
+		this.drawMap()
+	}
+
+	drawMap() {
+		let world_data = require('./world.geo.json')
 
 		let path = d3.geoPath().projection(this.projection)
 		let subunits = feature(
-			this.world_data,
-			this.world_data.objects.countries
+			world_data,
+			world_data.objects.countries
 		)
 
+		this.map.select('#countries').remove()
 		this.map.append('path')
 			.datum(subunits)
 			.attr('d', path)
@@ -43,50 +48,61 @@ class SpotMap {
 			.style('stroke', '#111')
 	}
 
-	redraw() {
-		let width = $(window).width()
-		let height = $(window).height() - $(this.container).offset().top
-		this.map
-			.attr('width', width + 'px')
-			.attr('height', height + 'px')
-
+	drawSpots() {
 		this.map.selectAll('.spot-paths').remove()
 
-		this.spots.forEach(spot => {
-			let p1 = spot.from_location
-			let p2 = spot.to_location
-			let path = d3.geoPath(this.projection)
+		let data = this.spots.map(spot => ({
+			type: 'LineString',
+			coordinates: [spot.from_location, spot.to_location]
+		}))
 
-			this.map.append('path')
-				.datum({
-					type: 'LineString',
-					coordinates: [p1, p2]
-				})
-				.attr('d', path)
-				.attr('class', 'spot-paths')
-				.style('fill', 'none')
-				.style('stroke', 'red')
-		})
-
-		this.map.attr("transform", this.transform)
-		this.map.select('#countries').style(
-			'stroke-width',
-			`${1 / this.transform.k}px`
-		)
-		this.map.selectAll('.spot-paths').style(
-			'stroke-width',
-			`${1 / this.transform.k}px`
-		)
+		let randomHue = () => Math.floor(Math.random() * 360)
+		var path = d3.geoPath().projection(this.projection)
+		this.map.selectAll('path')
+			.data(data)
+			.enter()
+			.append('path')
+			.attr('d', path)
+			.attr('class', 'spot-paths')
+			.style('fill', 'none')
+			.style('stroke', () => d3.hsl(randomHue(), 1, 0.5))
 	}
 
-	update(spots) {
+	drawZoom() {
+		this.map.selectAll('path')
+			.attr('transform', this.transform)
+			.style(
+				'stroke-width',
+				`${1 / this.transform.k}px`
+			)
+	}
+
+	draw() {
+		let width = $(this.container).width()
+		let height = $(this.container).height()
+		this.projection = azimuthal()
+			.translate([
+				width / 2,
+				height / 2
+			])
+			.rotate([-this.centre[0], -this.centre[1], 0])
+			.scale(Math.min(width, height) / (2 * Math.PI))
+
+		this.drawMap()
+		this.drawSpots()
+		this.drawZoom()
+	}
+
+	onZoom() {
+		this.transform = d3.event.transform
+		this.drawZoom()
+	}
+
+	update(spots, centre) {
 		this.spots = spots
-		this.redraw()
-	}
-
-	zoom() {
-		this.transform= d3.event.transform
-		this.redraw()
+		this.centre = centre
+		this.projection = d3.zoomIdentity
+		this.draw()
 	}
 }
 

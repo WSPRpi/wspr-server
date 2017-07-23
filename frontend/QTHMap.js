@@ -3,7 +3,7 @@ import $ from 'jquery'
 
 class QTHMap {
 	constructor(props) {
-		this.redraw = this.redraw.bind(this)
+		this.draw = this.draw.bind(this)
 		this.update = this.update.bind(this)
 		this.markers = []
 		this.locations = []
@@ -17,12 +17,11 @@ class QTHMap {
 					{attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'}
 				)
 			)
+
+		this.draw()
 	}
 
-	redraw() {
-		let height = $(window).height() - $(this.container).offset().top
-		$(this.container).height(height)
-
+	draw() {
 		// fix Leaflet being dense about icon paths
 		let icon = new Icon(Object.assign(
 			Icon.Default.prototype.options,
@@ -42,7 +41,7 @@ class QTHMap {
 
 	update(locations) {
 		this.locations = locations
-		this.redraw()
+		this.draw()
 	}
 }
 
