@@ -21,6 +21,7 @@ class SpotMap {
 		this.map = d3.select(this.container)
 			.style('background-color', '#aaa')
 			.call(d3.zoom()
+				.scaleExtent([0.5, 20])
 				.on("zoom", this.onZoom)
 			)
 
@@ -53,12 +54,24 @@ class SpotMap {
 
 		let data = this.spots.map(spot => ({
 			type: 'LineString',
-			coordinates: [spot.from_location, spot.to_location]
+			coordinates: [spot.from_location, spot.to_location],
+			from: spot.from,
+			to: spot.to
 		}))
 
 		let randomHue = () => Math.floor(Math.random() * 360)
-		var path = d3.geoPath().projection(this.projection)
-		this.map.selectAll('path')
+		let path = d3.geoPath().projection(this.projection)
+
+		let self = this
+		function handleMouseOver() {
+			d3.select(this).style('stroke-width', `${5 / self.transform.k}px`)
+		}
+
+		function handleMouseOut() {
+			d3.select(this).style('stroke-width', `${1 / self.transform.k}px`)
+		}
+
+		let spots = this.map.selectAll('path')
 			.data(data)
 			.enter()
 			.append('path')
@@ -66,6 +79,10 @@ class SpotMap {
 			.attr('class', 'spot-paths')
 			.style('fill', 'none')
 			.style('stroke', () => d3.hsl(randomHue(), 1, 0.5))
+			.on('mouseover', handleMouseOver)
+			.on('mouseout', handleMouseOut)
+		spots.append('svg:title')
+			.text(s => `${s.to} reporting ${s.from}`)
 	}
 
 	drawZoom() {

@@ -16,7 +16,6 @@ function latlonAverage(spots) {
 		(a, s) => a + s.from_location[1] + s.to_location[1],
 		0
 	) / (2 * spots.length)
-	console.log(lat, lon)
 	return [lat, lon]
 }
 
@@ -102,15 +101,17 @@ class App {
 
 		let map_data = this.spots.map(s => ({
 			from_location: Maidenhead.toLatLon(s.grid).reverse(),
-			to_location: Maidenhead.toLatLon(s.reporter_grid).reverse()
+			to_location: Maidenhead.toLatLon(s.reporter_grid).reverse(),
+			from: s.callsign,
+			to: s.reporter
 		}))
 		let map_centre = latlonAverage(map_data)
 		this.map.update(map_data, map_centre)
 
-		let qth_data = Array.concat(this.spots.map(s => ({
+		let qth_data = this.spots.map(s => ({
 			location: Maidenhead.toLatLon(s.grid),
 			callsign: s.callsign
-		})), this.spots.map(s => ({
+		})).concat(this.spots.map(s => ({
 			location: Maidenhead.toLatLon(s.reporter_grid),
 			callsign: s.reporter
 		})))
