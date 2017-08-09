@@ -26,8 +26,8 @@ SELECT * FROM spots WHERE callsign IN ({ps}) OR reporter IN ({ps})
 		self.write(tornado.escape.json_encode({'spots': spots}))
 
 class HardwareHandler:
-	def __init__(self):
-		self.serial = serial.Serial(
+	def __init__(self, Serial):
+		self.serial = Serial(
 			port='/dev/ttyAMA0',
 			baudrate=115200,
 			parity=serial.PARITY_NONE,
@@ -44,14 +44,6 @@ class HardwareHandler:
 		data = data.decode('ascii')
 		command = data[0]
 		rest = data[1:-2]
-
-		# special case HACK HACK
-		if data == "CM0WUT;\n":
-			print("GOT A DAN")
-			self.serial.write(b'CW4NKR;')
-			print("SENT A WANKR")
-			self.serial.write(b'C;')
-			return
 
 		handler = None
 		try:
@@ -70,7 +62,6 @@ class HardwareHandler:
 	def poll_serial(self):
 		while True:
 			data = self.serial.readline()
-			print(data)
 			ioloop = tornado.ioloop.IOLoop.current()
 			ioloop.add_callback(self.handle_command, data)
 
@@ -90,8 +81,20 @@ def callsign_handler(callsign):
 	print("Callsign: {}".format(callsign))
 	return None
 
+class MockSerial:
+	def __init__(self, *args, **kwargs):
+		pass
+
+	def readline(self):
+		import time
+		time.sleep(1)
+		return b'I;\n'
+
+	def write(self, data):
+		pass
+
 if __name__ == '__main__':
-	hardware = HardwareHandler()
+	hardware = HardwareHandler(MockSerial)
 	hardware.register_handler('H', hostname_handler)
 	hardware.register_handler('I', ip_handler)
 	hardware.register_handler('C', callsign_handler)
