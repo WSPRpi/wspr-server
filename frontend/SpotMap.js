@@ -3,6 +3,11 @@ import {feature} from 'topojson'
 import {geoAzimuthalEquidistant as azimuthal} from 'd3-geo'
 import $ from 'jquery'
 
+const SEA_COLOR_FOR_DAN_DERP = 'blue'
+const LAND_COLOR_FOR_DAN_DERP = 'green'
+const LINE_COLOR_FOR_DAN_DERP = 'black'
+const BACKGROUND_COLOR_FOR_DAN_DERP = 'white'
+
 class SpotMap {
 	constructor(props) {
 		this.drawMap = this.drawMap.bind(this)
@@ -19,7 +24,7 @@ class SpotMap {
 		this.projection = null
 
 		this.map = d3.select(this.container)
-			.style('background-color', '#aaa')
+			.style('background-color', BACKGROUND_COLOR_FOR_DAN_DERP)
 			.call(d3.zoom()
 				.scaleExtent([0.5, 20])
 				.on("zoom", this.onZoom)
@@ -41,12 +46,17 @@ class SpotMap {
 		)
 
 		this.map.select('#countries').remove()
+		this.map.append('circle')
+			.attr('r', `${500 * this.transform.k}px`)
+			.attr("transform", this.transform)
+			.style('fill', SEA_COLOR_FOR_DAN_DERP)
+
 		this.map.append('path')
 			.datum(subunits)
 			.attr('d', path)
 			.attr('id', 'countries')
-			.style('fill', '#eee')
-			.style('stroke', '#111')
+			.style('fill', LAND_COLOR_FOR_DAN_DERP)
+			.style('stroke', LINE_COLOR_FOR_DAN_DERP)
 	}
 
 	drawSpots() {

@@ -55,12 +55,17 @@ class App {
 			$('#qth-map-page').show()
 			this.qth.draw()
 		}
+		let routeConfig = () => {
+			$('.page').hide()
+			$('#config-page').show()
+		}
 
 		let router = HashRouter()
 		router.addRoute("#/", routeTable)
 		router.addRoute("#/table", routeTable)
 		router.addRoute("#/spot-map", routeSpotMap)
 		router.addRoute("#/qth-map", routeQTHMap)
+		router.addRoute("#/config", routeConfig)
 		window.addEventListener("hashchange", router)
 		router()
 	}
