@@ -8,6 +8,12 @@
   <title>WSPR</title>
  </head>
  <body>
+  <div id="loading-banner">
+   <div class="jumbotron jumbotron-fluid col-9">
+    <h1 class="display-3">Getting WSPR ready...</h1>
+    <p class="lead">We're loading all the data we need to work.</p>
+   </div>
+  </div>
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
    <ul class="nav navbar-nav">
@@ -16,14 +22,31 @@
     <li><a href="#/qth-map">Map</a>
     <li><a href="#/config">Configuration</a>
    </ul>
-   <form class="navbar-form" role="search">
+   <form
+    id="callsigns-form"
+    class="navbar-form"
+    role="search"
+    onsubmit="event.preventDefault();"
+   >
     <input
-     id="callsign-select"
+     id="callsign-input1"
      type="text"
-     data-role="tagsinput"
-     autocomplete="off"
+     style="text-transform:uppercase"
      class="form-control"
-     placeholder="Add Callsigns"
+     placeholder="Callsign #1"
+    >
+    <input
+     id="callsign-input2"
+     type="text"
+     style="text-transform:uppercase"
+     class="form-control"
+     placeholder="Callsign #2"
+    >
+    <input
+     id="callsign-submit"
+     class="btn btn-primary"
+     type="submit"
+     value="Search"
     >
    </form>
   </nav>

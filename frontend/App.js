@@ -7,27 +7,19 @@ import Maidenhead from 'maidenhead'
 import $ from 'jquery'
 import HashRouter from 'hash-router'
 
-function latlonAverage(spots) {
-	let lat = spots.reduce(
-		(a, s) => a + s.from_location[0] + s.to_location[0],
-		0
-	) / (2 * spots.length)
-	let lon = spots.reduce(
-		(a, s) => a + s.from_location[1] + s.to_location[1],
-		0
-	) / (2 * spots.length)
-	return [lat, lon]
-}
-
 class App {
 	constructor() {
 		this.fetchData = this.fetchData.bind(this)
 		this.update = this.update.bind(this)
 		this.spots = []
+		this.callsign1 = null
+		this.callsign2 = null
 
 		this.search = new SpotSearch({
-			select: $('#callsign-select'),
-			onUpdate: callsigns => this.fetchData(callsigns)
+			input1: $('#callsign-input1'),
+			input2: $('#callsign-input2'),
+			form: $('#callsigns-form'),
+			onUpdate: this.fetchData
 		})
 		this.table = new SpotTable({
 			table: '#spot-table'
@@ -38,7 +30,6 @@ class App {
 		this.qth = new QTHMap({
 			map: '#qth-map'
 		})
-
 
 		// setup routing
 		let routeTable = () => {
@@ -68,14 +59,15 @@ class App {
 		router.addRoute("#/config", routeConfig)
 		window.addEventListener("hashchange", router)
 		router()
+
+		console.log("Finished loading.")
+		$('#loading-banner').hide()
 	}
 
-	fetchData(callsigns) {
-		if(callsigns.length == 0) {
-			this.spots = []
-			this.update()
-			return
-		}
+	fetchData(callsign1, callsign2) {
+		this.callsign1 = callsign1
+		this.callsign2 = callsign2
+		var endpoint = '/spots?' + $.param({callsign1, callsign2});
 
 		(async (ref) => {
                         try {
@@ -83,11 +75,9 @@ class App {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'
 				}
-
-                                let response = await fetch('/spots', {
+                                let response = await fetch(endpoint, {
 					headers: headers,
-					method: 'POST',
-					body: JSON.stringify({callsigns})
+					method: 'GET'
 				})
                                 let data = await response.json()
 				this.spots = data.spots
@@ -101,26 +91,28 @@ class App {
 	}
 
 	update() {
-		let table_data = this.spots
-		this.table.update(table_data)
+		this.table.update({spots: this.spots})
 
-		let map_data = this.spots.map(s => ({
-			from_location: Maidenhead.toLatLon(s.grid).reverse(),
-			to_location: Maidenhead.toLatLon(s.reporter_grid).reverse(),
+		let map_spots = this.spots.map(s => ({
+			from_location: Maidenhead.toLatLon(s.grid),
+			to_location: Maidenhead.toLatLon(s.reporter_grid),
 			from: s.callsign,
 			to: s.reporter
 		}))
-		let map_centre = latlonAverage(map_data)
-		this.map.update(map_data, map_centre)
+		this.map.update({
+			spots: map_spots,
+			callsign1: this.callsign1,
+			callsign2: this.callsign2
+		})
 
-		let qth_data = this.spots.map(s => ({
+		let qth_locations = this.spots.map(s => ({
 			location: Maidenhead.toLatLon(s.grid),
 			callsign: s.callsign
 		})).concat(this.spots.map(s => ({
 			location: Maidenhead.toLatLon(s.reporter_grid),
 			callsign: s.reporter
 		})))
-		this.qth.update(qth_data)
+		this.qth.update({locations: qth_locations})
 	}
 }
 

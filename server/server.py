@@ -12,16 +12,27 @@ import subprocess
 import time
 
 class SpotHandler(tornado.web.RequestHandler):
-	def post(self):
-		params = tornado.escape.json_decode(self.request.body)
-		callsigns = params['callsigns']
+	def get(self):
+		def extract_arg(name):
+			return (self.get_arguments(name) or [None])[0]
+
+		callsign1 = extract_arg('callsign1')
+		callsign2 = extract_arg('callsign2')
+
 		query = '''
-SELECT * FROM spots WHERE callsign IN ({ps}) OR reporter IN ({ps})
-		'''.format(ps=', '.join(['?'] * len(callsigns)))
+SELECT * FROM spots WHERE
+	callsign = ? OR callsign = ? OR
+        reporter = ? OR reporter = ?
+		'''
 
 		connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
 		connection.row_factory = sql.Row
-		rows = connection.execute(query, callsigns + callsigns)
+		rows = connection.execute(query, [
+			callsign1,
+			callsign2,
+			callsign1,
+			callsign2
+		])
 		spots = [dict(r) for r in rows]
 		self.write(tornado.escape.json_encode({'spots': spots}))
 

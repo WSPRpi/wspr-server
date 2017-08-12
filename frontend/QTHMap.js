@@ -22,6 +22,15 @@ class QTHMap {
 	}
 
 	draw() {
+		let unique = {}
+		this.locations.forEach(d => {
+			let location = d.location
+			let callsign = d.callsign
+			let key = String(location)
+			if(!(key in unique))
+				unique[key] = {location, callsigns: {}}
+			unique[key].callsigns[callsign] = true
+		})
 		// fix Leaflet being dense about icon paths
 		let icon = new Icon(Object.assign(
 			Icon.Default.prototype.options,
@@ -30,16 +39,18 @@ class QTHMap {
 				shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 			}
 		));
+		let format = (callsigns) => Object.keys(callsigns).join(', ')
 		this.markers.forEach(m => this.map.removeLayer(m))
-		this.markers = this.locations.map(l =>
-			marker(l.location, {icon: icon})
-			.bindPopup(l.callsign)
-			.addTo(this.map)
+		this.markers = Object.keys(unique).map(k => 
+			marker(unique[k].location, {icon: icon})
+				.bindPopup(format(unique[k].callsigns))
+				.addTo(this.map)
 		)
 		this.map.invalidateSize()
 	}
 
-	update(locations) {
+	update(data) {
+		let {locations} = data
 		this.locations = locations
 		this.draw()
 	}
