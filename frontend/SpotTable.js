@@ -9,7 +9,8 @@ class SpotTable {
 		this.table = $(table)
 	}
 
-	update(spots) {
+	update(data) {
+		let {spots} = data
 		let renderTime = (time => moment
 			.unix(time)
 			.utc()
