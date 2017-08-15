@@ -2,6 +2,7 @@ import SpotSearch from './SpotSearch'
 import SpotTable from './SpotTable'
 import SpotMap from './SpotMap'
 import QTHMap from './QTHMap'
+import Configuration from './Configuration'
 
 import Maidenhead from 'maidenhead'
 import $ from 'jquery'
@@ -29,6 +30,8 @@ class App {
 		})
 		this.qth = new QTHMap({
 			map: '#qth-map'
+		})
+		this.config = new Configuration({
 		})
 
 		// setup routing

@@ -6,12 +6,13 @@ import socket
 import tornado.escape
 import tornado.ioloop
 import tornado.web
+import tornado.websocket
 import sqlite3 as sql
 import serial
 import subprocess
 import time
 
-class SpotHandler(tornado.web.RequestHandler):
+class SpotEndpoint(tornado.web.RequestHandler):
 	def get(self):
 		def extract_arg(name):
 			return (self.get_arguments(name) or [None])[0]
@@ -36,7 +37,49 @@ SELECT * FROM spots WHERE
 		spots = [dict(r) for r in rows]
 		self.write(tornado.escape.json_encode({'spots': spots}))
 
-class HardwareHandler:
+class HardwareState:
+	def __init__(self):
+		self.callsign = 'W4NKR'
+		self.locator = 'GPS'
+		self.power = 0.1
+		self.band = '10'
+		self.tx_percentage = 20
+
+class SerialBaseHandler:
+	def __init__(self):
+		pass
+
+	def handle(self, data):
+		raise NotImplementedError()
+
+class HostnameHandler(SerialBaseHandler):
+	def __init__(self):
+		super().__init__()
+
+	def handle(self, data):
+		hostname = socket.gethostname()
+		return ('H', hostname)
+
+class IPHandler(SerialBaseHandler):
+	def __init__(self):
+		super().__init__()
+
+	def handle(self, data):
+		ip = subprocess.check_output(['hostname' , '-I'])\
+			.decode('ascii')\
+			.strip()
+		return ('I', ip)
+
+class CallsignHandler(SerialBaseHandler):
+	def __init__(self, state):
+		super().__init__()
+		self.state = state
+
+	def handle(self, data):
+		print("Callsign: {}".format(data))
+		return None
+
+class SerialMonitor:
 	def __init__(self, Serial):
 		self.serial = Serial(
 			port='/dev/ttyAMA0',
@@ -46,7 +89,6 @@ class HardwareHandler:
 			bytesize=serial.EIGHTBITS
 		)
 		self.handlers = {}
-		self.serial.write(b'C;')
 
 	def register_handler(self, command, handler):
 		self.handlers[command] = handler
@@ -62,7 +104,7 @@ class HardwareHandler:
 		except KeyError:
 			raise NotImplementedException("no handler for {}".format(command))
 
-		returned = handler(rest)
+		returned = handler.handle(rest)
 		if returned is None:
 			return
 
@@ -80,35 +122,34 @@ class HardwareHandler:
 		target = self.poll_serial
 		Thread(target=target).start()
 
-def hostname_handler(data):
-	hostname = socket.gethostname()
-	return ('H', hostname)
-
-def ip_handler(data):
-	ip = subprocess.check_output(['hostname' , '-I']).decode('ascii').strip()
-	return ('I', ip)
-
-def callsign_handler(callsign):
-	print("Callsign: {}".format(callsign))
-	return None
-
 class MockSerial:
 	def __init__(self, *args, **kwargs):
 		pass
 
 	def readline(self):
-		import time
 		time.sleep(1)
 		return b'I;\n'
 
 	def write(self, data):
 		pass
 
+class ConfigEndpoint(tornado.websocket.WebSocketHandler):
+	def initialize(self, state=None):
+		self.state = state
+
+	def open(self):
+		self.write_message('C{};'.format(self.state.callsign))
+		self.write_message('L{};'.format(self.state.locator))
+		self.write_message('P{};'.format(self.state.power))
+		self.write_message('B{};'.format(self.state.power))
+		self.write_message('T{};'.format(self.state.tx_percentage))
+
 if __name__ == '__main__':
-	hardware = HardwareHandler(MockSerial)
-	hardware.register_handler('H', hostname_handler)
-	hardware.register_handler('I', ip_handler)
-	hardware.register_handler('C', callsign_handler)
+	state = HardwareState()
+	hardware = SerialMonitor(MockSerial)
+	hardware.register_handler('H', HostnameHandler())
+	hardware.register_handler('I', IPHandler())
+	hardware.register_handler('C', CallsignHandler(state))
 
 	app = tornado.web.Application([
 		(r'/()', tornado.web.StaticFileHandler, {
@@ -118,7 +159,8 @@ if __name__ == '__main__':
 		(r'/static/(.*)', tornado.web.StaticFileHandler, {
 			'path': 'server/static/'
 		}),
-		(r'/spots', SpotHandler),
+		(r'/spots', SpotEndpoint),
+		(r'/config', ConfigEndpoint, {'state': state})
 	])
 	app.listen(8080)
 	hardware.go()
