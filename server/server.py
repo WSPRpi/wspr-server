@@ -11,6 +11,8 @@ import sqlite3 as sql
 import serial
 import subprocess
 import time
+from queue import Queue
+import random
 
 class SpotEndpoint(tornado.web.RequestHandler):
 	def get(self):
@@ -39,11 +41,14 @@ SELECT * FROM spots WHERE
 
 class HardwareState:
 	def __init__(self):
-		self.callsign = 'W4NKR'
-		self.locator = 'GPS'
-		self.power = 0.1
-		self.band = '10'
-		self.tx_percentage = 20
+		self.callsign = 'W4NKR' # C, 10 or fewer, 0 or 1 slash only, 1 to 3 before slash, if at end, either one alphanumeric, two numeric (>= 10), main callsign must have number in second/third character
+		self.locator = 'GPS' # L, 6 character, or 'GPS'
+		self.power = 20 # P, 0-60 integral, LSB must be in 0, 3, 7, ALSO CALCULATE mW.
+		self.frequency = 1337 # F, frequency if not band, always exactly 8, in Hz, maximum 30 million.
+		self.tx_percentage = 20 # X, 0-100, multiple of 10, 3 digits
+		self.band_hop = ['0'] * 24 # B, comma separated array of either 0-9 ascii, or 'O' for other
+		self.state = 'Loading...' # add S option, arbitrary string
+		# T pic -> pi timestamp in date format
 
 class SerialBaseHandler:
 	def __init__(self):
@@ -124,14 +129,20 @@ class SerialMonitor:
 
 class MockSerial:
 	def __init__(self, *args, **kwargs):
-		pass
+		self.state = HardwareState()
+		self.responses = Queue()
 
 	def readline(self):
-		time.sleep(1)
-		return b'I;\n'
+		return b'{};\n'.format(self.responses.get())
 
 	def write(self, data):
-		pass
+		command = data[0]
+		rest = data[1:-2]
+		if command == 'B'
+		elif command == 'C' and rest:
+			self.state.callsign = rest
+		elif command == 'C':
+			self.responses.put('C{}'.format(self.state.callsign))
 
 class ConfigEndpoint(tornado.websocket.WebSocketHandler):
 	def initialize(self, state=None):
