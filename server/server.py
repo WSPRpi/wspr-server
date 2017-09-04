@@ -21,16 +21,19 @@ class SpotEndpoint(tornado.web.RequestHandler):
 
 		callsign1 = extract_arg('callsign1')
 		callsign2 = extract_arg('callsign2')
+		when = extract_arg('when')
 
 		query = '''
 SELECT * FROM spots WHERE
-	callsign = ? OR callsign = ? OR
-        reporter = ? OR reporter = ?
+	datetime(timestamp, 'unixepoch') > datetime('now', ?) AND
+	(callsign = ? OR callsign = ? OR
+         reporter = ? OR reporter = ?)
 		'''
 
 		connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
 		connection.row_factory = sql.Row
 		rows = connection.execute(query, [
+			when,
 			callsign1,
 			callsign2,
 			callsign1,
@@ -39,7 +42,7 @@ SELECT * FROM spots WHERE
 		spots = [dict(r) for r in rows]
 		self.write(tornado.escape.json_encode({'spots': spots}))
 
-class HardwareState:
+class HardwareStateManager:
 	def __init__(self):
 		self.callsign = 'W4NKR' # C, 10 or fewer, 0 or 1 slash only, 1 to 3 before slash, if at end, either one alphanumeric, two numeric (>= 10), main callsign must have number in second/third character
 		self.locator = 'GPS' # L, 6 character, or 'GPS'
@@ -47,8 +50,24 @@ class HardwareState:
 		self.frequency = 1337 # F, frequency if not band, always exactly 8, in Hz, maximum 30 million.
 		self.tx_percentage = 20 # X, 0-100, multiple of 10, 3 digits
 		self.band_hop = ['0'] * 24 # B, comma separated array of either 0-9 ascii, or 'O' for other
-		self.state = 'Loading...' # add S option, arbitrary string
-		# T pic -> pi timestamp in date format
+		self._state = {
+			'callsign': 'W4NKR',
+			'locator': None,
+			'power': 0.1,
+			'band': '10m',
+			'tx_percentage': 2,
+			# T pic -> pi timestamp in date format
+			'status': 'Loading...' # add S option, arbitrary string
+		}
+		self.listeners = []
+
+	@property
+	def state(self):
+		return self._state
+
+	@state.setter
+	def state(self, state):
+		self._state = state
 
 class SerialBaseHandler:
 	def __init__(self):
@@ -76,9 +95,8 @@ class IPHandler(SerialBaseHandler):
 		return ('I', ip)
 
 class CallsignHandler(SerialBaseHandler):
-	def __init__(self, state):
+	def __init__(self):
 		super().__init__()
-		self.state = state
 
 	def handle(self, data):
 		print("Callsign: {}".format(data))
@@ -129,38 +147,33 @@ class SerialMonitor:
 
 class MockSerial:
 	def __init__(self, *args, **kwargs):
-		self.state = HardwareState()
 		self.responses = Queue()
 
 	def readline(self):
-		return b'{};\n'.format(self.responses.get())
+		return '{};\n'.format(self.responses.get()).encode('ascii')
 
 	def write(self, data):
-		command = data[0]
-		rest = data[1:-2]
-		if command == 'B'
-		elif command == 'C' and rest:
-			self.state.callsign = rest
-		elif command == 'C':
-			self.responses.put('C{}'.format(self.state.callsign))
+		pass
 
 class ConfigEndpoint(tornado.websocket.WebSocketHandler):
-	def initialize(self, state=None):
-		self.state = state
+	def initialize(self, manager=None):
+		if manager is None:
+			raise ArgumentException()
+		self.manager = manager
 
 	def open(self):
-		self.write_message('C{};'.format(self.state.callsign))
-		self.write_message('L{};'.format(self.state.locator))
-		self.write_message('P{};'.format(self.state.power))
-		self.write_message('B{};'.format(self.state.power))
-		self.write_message('T{};'.format(self.state.tx_percentage))
+		self.write_message('C{};'.format(self.manager.state['callsign']))
+		self.write_message('L{};'.format(self.manager.state['locator']))
+		self.write_message('P{};'.format(self.manager.state['power']))
+		self.write_message('B{};'.format(self.manager.state['band']))
+		self.write_message('T{};'.format(self.manager.state['tx_percentage']))
 
 if __name__ == '__main__':
-	state = HardwareState()
+	manager = HardwareStateManager()
 	hardware = SerialMonitor(MockSerial)
 	hardware.register_handler('H', HostnameHandler())
 	hardware.register_handler('I', IPHandler())
-	hardware.register_handler('C', CallsignHandler(state))
+	hardware.register_handler('C', CallsignHandler())
 
 	app = tornado.web.Application([
 		(r'/()', tornado.web.StaticFileHandler, {
@@ -171,7 +184,7 @@ if __name__ == '__main__':
 			'path': 'server/static/'
 		}),
 		(r'/spots', SpotEndpoint),
-		(r'/config', ConfigEndpoint, {'state': state})
+		(r'/config', ConfigEndpoint, {'manager': manager})
 	])
 	app.listen(8080)
 	hardware.go()

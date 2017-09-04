@@ -18,8 +18,6 @@ PARAMS = {
 }
 URL = 'http://wsprnet.org/drupal/wsprnet/spotquery'
 
-# 30-day cull
-CULL = 30 * 24 * 60 * 60
 # wait 60 seconds between queries
 REPEAT = 60
 
@@ -111,9 +109,6 @@ INSERT INTO spots VALUES (
 	:az
 )
 	''', spots)
-	cursor.execute('''
-DELETE FROM spots WHERE STRFTIME('%s', 'now') - timestamp > :cull
-	''', {'cull': CULL})
 	connection.commit()
 	connection.close()
 

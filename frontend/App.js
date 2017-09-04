@@ -15,10 +15,12 @@ class App {
 		this.spots = []
 		this.callsign1 = null
 		this.callsign2 = null
+		this.when = null
 
 		this.search = new SpotSearch({
 			input1: $('#callsign-input1'),
 			input2: $('#callsign-input2'),
+			inputWhen: $('#callsign-when'),
 			form: $('#callsigns-form'),
 			onUpdate: this.fetchData
 		})
@@ -67,10 +69,15 @@ class App {
 		$('#loading-banner').hide()
 	}
 
-	fetchData(callsign1, callsign2) {
+	fetchData(callsign1, callsign2, when) {
 		this.callsign1 = callsign1
 		this.callsign2 = callsign2
-		var endpoint = '/spots?' + $.param({callsign1, callsign2});
+		this.when = when
+		var endpoint = '/spots?' + $.param({
+			callsign1,
+			callsign2,
+			when
+		});
 
 		(async (ref) => {
                         try {
