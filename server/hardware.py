@@ -4,7 +4,7 @@ from threading import Thread
 
 import serial
 # from serial import Serial
-from fake_hardware import Serial
+from fake_serial import Serial
 
 class Hardware:
 	def __init__(self, state):
