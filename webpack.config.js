@@ -1,7 +1,7 @@
 module.exports = {
 	entry: './frontend/index.js',
 	output: {
-		filename: "server/static/bundle.js"
+		filename: "static/bundle.js"
 	},
 	watch: true,
 	module: {

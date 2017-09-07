@@ -4,7 +4,7 @@ class SharedState:
 			'callsign': 'W4NKR',
 			'locator': 'GPS',
 			'power': 10,
-			'band': ['0'] * 24,
+			'bandhop': ['0'] * 24,
 			'frequency': 1337000,
 			'tx_percentage': 20,
 			'status': 'Loading...'
@@ -18,8 +18,8 @@ class SharedState:
 	def set_from_hardware(self, key, value):
 		self._state[key] = value
 		for listener in self.software_listeners:
-			listener.on_state_change(self._state)
+			listener.on_state_change(key, value)
 
-	def set_from_client(self, key, value):
+	def set_from_software(self, key, value):
 		self._state[key] = value
-		self.hardware_listener.on_state_change(self._state)
+		self.hardware_listener.on_state_change(key, value)

@@ -1,6 +1,5 @@
 from tornado.escape import json_encode
 from tornado.web import RequestHandler, StaticFileHandler
-from tornado.websocket import WebSocketHandler
 import sqlite3 as sql
 
 class StaticEndpoint(StaticFileHandler):
@@ -40,10 +39,3 @@ SELECT * FROM spots WHERE
 		])
 		spots = [dict(r) for r in rows]
 		self.write(json_encode({'spots': spots}))
-
-class ConfigEndpoint(WebSocketHandler):
-	def initialize(self, state=None):
-		pass
-
-	def open(self):
-		self.write_message('Hello, world!')

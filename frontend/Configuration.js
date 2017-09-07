@@ -9,7 +9,6 @@ class Configuration {
 
 	handleMessage(event) {
 		console.log(event.data)
-
 	}
 }
 
