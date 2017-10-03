@@ -1,6 +1,8 @@
 class SharedState:
 	def __init__(self):
 		self._state = {
+                        'hostname': 'localhost',
+                        'ip': '0.0.0.0',
 			'callsign': 'W4NKR',
 			'locator': 'GPS',
 			'power': 10,

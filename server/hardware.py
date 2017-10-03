@@ -32,14 +32,20 @@ class Hardware:
 			'T': self.handle_timestamp
 		}
 
+		# populate hostname and IP for the frontend
+		self.handle_hostname(None)
+		self.handle_ip(None)
+
 	def handle_hostname(self, data):
 		hostname = socket.gethostname()
+		self.state.set_from_hardware('hostname', hostname)
 		return ('H', hostname)
 
 	def handle_ip(self, data):
 		ip = check_output(['hostname' , '-I'])\
 			.decode('ascii')\
 			.strip()
+		self.state.set_from_hardware('ip', ip)
 		return ('I', ip)
 
 	def handle_callsign(self, data):

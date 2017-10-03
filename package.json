@@ -22,12 +22,14 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "bootstrap-tagsinput": "^0.7.1",
+    "bootstrap-validator": "^0.11.9",
     "d3": "^4.9.1",
     "hash-router": "^0.4.0",
     "jquery": "^3.2.1",
     "leaflet": "^1.1.0",
     "maidenhead": "^1.0.7",
     "moment": "^2.18.1",
+    "toastr": "^2.1.2",
     "topojson": "^3.0.0"
   }
 }

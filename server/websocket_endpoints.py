@@ -3,7 +3,7 @@ from tornado.websocket import WebSocketHandler
 class ConfigEndpoint(WebSocketHandler):
 	def send_data(self, key, value):
 		self.write_message({
-			'key': key,
+			'name': key,
 			'value': value
 		})
 

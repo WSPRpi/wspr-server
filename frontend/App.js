@@ -34,6 +34,10 @@ class App {
 			map: '#qth-map'
 		})
 		this.config = new Configuration({
+			status: $('#config-status'),
+			hostname: $('#config-hostname'),
+			ip: $('#config-ip'),
+			form: $('#config-form')
 		})
 
 		// setup routing
