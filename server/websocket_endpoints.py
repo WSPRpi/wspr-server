@@ -1,4 +1,5 @@
 from tornado.websocket import WebSocketHandler
+from json import loads as load_json
 
 class ConfigEndpoint(WebSocketHandler):
 	def send_data(self, key, value):
@@ -15,8 +16,9 @@ class ConfigEndpoint(WebSocketHandler):
 		for key, value in self.state.get_state().items():
 			self.send_data(key, value)
 
-	def on_message(self, message):
-		print(message)
+	def on_message(self, data):
+		message = load_json(data)
+		self.state.set_from_software(message['name'], message['value'])
 
 	def on_hardware_state_change(self, key, value):
 		self.send_data(key, value)

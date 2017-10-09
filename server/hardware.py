@@ -32,6 +32,24 @@ class Hardware:
 			'T': self.handle_timestamp
 		}
 
+		self.startup_messages = [
+			('C', ''),
+			('L', ''),
+			('P', ''),
+			('B', ''),
+			('F', ''),
+			('X', ''),
+			('S', ''),
+			('T', '')
+		]
+
+		self.state_commands = {
+			'callsign': 'C',
+			'locator': 'L',
+			'power': 'P',
+			'tx_percentage': 'X'
+		}
+
 		# populate hostname and IP for the frontend
 		self.handle_hostname(None)
 		self.handle_ip(None)
@@ -72,6 +90,10 @@ class Hardware:
 	def handle_timestamp(self, data):
 		invoke_process(['date', '+%T', '-s', data])
 
+	def send_data(self, command, rest):
+		formatted = for_wire(command, rest)
+		self.serial.write(formatted)
+
 	def route_command(self, data):
 		command, rest = from_wire(data)
 		handler = None
@@ -81,17 +103,20 @@ class Hardware:
 			raise NotImplementedException("no handler for {}".format(command))
 
 		returned = handler(rest)
-		if returned is None:
-			return
-
-		response = for_wire(*returned)
-		self.serial.write(response)
+		if returned is not None:
+			self.send_data(*returned)
 		
-	def poll_serial(self):
+	def manage_serial(self):
+		for message in self.startup_messages:
+			self.send_data(*message)
+
 		while True:
 			data = self.serial.readline()
 			IO.current().add_callback(self.route_command, data)
 
 	def go(self):
-		target = self.poll_serial
+		target = self.manage_serial
 		Thread(target=target).start()
+
+	def on_state_change(self, key, value):
+		self.send_data(self.state_commands[key], value)

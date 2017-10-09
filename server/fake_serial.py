@@ -29,7 +29,7 @@ class Serial:
 	def readline(self):
 		self.jitter()
 		command, rest = self.responses.get()
-		print("< {}{}".format(command, rest))
+		print("< {}{};".format(command, rest))
 		return for_wire(command, rest)
 
 	def write(self, data):
