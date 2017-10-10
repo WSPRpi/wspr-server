@@ -37,3 +37,18 @@ class Serial:
 		self.jitter()
 		command, rest = from_wire(data)
 		print("> {}{}".format(command, rest))
+
+class GPIO:
+	LOW = 0
+	HIGH = 1
+	BCM = None
+	OUT = None
+
+	def setmode(*args, **kwargs):
+		pass
+
+	def setup(*args, **kwargs):
+		pass
+
+	def output(port, value):
+		print("GPIO {}: {}".format(port, value))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from tornado.web import Application as WebApp
-from tornado.ioloop import IOLoop as IO
+from tornado.ioloop import IOLoop as IO, PeriodicCallback
 
 from web_endpoints import *
 from websocket_endpoints import *
@@ -22,5 +22,7 @@ def create_app():
 if __name__ == '__main__':
 	app, hardware = create_app()
 	app.listen(8080)
+	hardware.toggle_GPIO()
 	hardware.go()
+	PeriodicCallback(hardware.toggle_GPIO, 5000).start()
 	IO.current().start()

@@ -5,8 +5,12 @@ from subprocess import check_output, run as invoke_process
 from threading import Thread
 
 import serial
+
 # from serial import Serial
+# import RPi.GPIO as GPIO
 from fake_serial import Serial
+from fake_serial import GPIO
+
 from wire_format import for_wire, from_wire
 
 class Hardware:
@@ -49,6 +53,11 @@ class Hardware:
 			'power': 'P',
 			'tx_percentage': 'X'
 		}
+
+		self.GPIO_high = False
+		self.GPIO_port = 5
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(self.GPIO_port, GPIO.OUT)
 
 		# populate hostname and IP for the frontend
 		self.handle_hostname(None)
@@ -120,3 +129,10 @@ class Hardware:
 
 	def on_state_change(self, key, value):
 		self.send_data(self.state_commands[key], value)
+
+	def toggle_GPIO(self):
+		self.GPIO_high = not self.GPIO_high
+		GPIO.output(
+			self.GPIO_port,
+			GPIO.HIGH if self.GPIO_high else GPIO.LOW
+		)
