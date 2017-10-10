@@ -20,7 +20,7 @@ class ConfigEndpoint(WebSocketHandler):
 		message = load_json(data)
 		self.state.set_from_software(message['name'], message['value'])
 
-	def on_hardware_state_change(self, key, value):
+	def on_state_change(self, key, value):
 		self.send_data(key, value)
 
 	def on_close(self):
