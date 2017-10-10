@@ -1,7 +1,7 @@
 from tornado.ioloop import IOLoop as IO
 
 import socket
-from subprocess import check_output, run as invoke_process
+from subprocess import check_output, Popen as invoke_process
 from threading import Thread
 
 import serial
@@ -97,7 +97,7 @@ class Hardware:
 		self.state.set_from_hardware('status', data)
 
 	def handle_timestamp(self, data):
-		invoke_process(['date', '+%T', '-s', data])
+		invoke_process(['date', '-d', data])
 
 	def send_data(self, command, rest):
 		formatted = for_wire(command, rest)
