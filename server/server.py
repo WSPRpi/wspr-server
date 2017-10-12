@@ -24,5 +24,5 @@ if __name__ == '__main__':
 	app.listen(8080)
 	hardware.toggle_GPIO()
 	hardware.go()
-	PeriodicCallback(hardware.toggle_GPIO, 5000).start()
+	PeriodicCallback(hardware.toggle_GPIO, 1000).start()
 	IO.current().start()
