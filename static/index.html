@@ -90,8 +90,7 @@
   <div id="config-page" class="page"><div class="container">
    <div class="col-lg-4">
     <h2>Configuration</h2>
-    <form id="config-form" autocomplete="off"
-      oninput="milliwatts.value = '(' + Math.pow(10, parseInt(power.value) / 10).toFixed(0) + ' mW)'">
+    <form id="config-form" autocomplete="off">
      <div class="form-group">
       <label for="config-callsign">Callsign</label>
       <input required data-callsign name="callsign" type="text" id="config-callsign" class="form-control" style="text-transform: uppercase">
@@ -106,27 +105,26 @@
      <div class="form-group">
       <label for="config-power">Power (dBm)</label>
       <select id="config-power" name="power" class="form-control">
-       <option>0</option>
-       <option>3</option>
-       <option>7</option>
-       <option>10</option>
-       <option>13</option>
-       <option>17</option>
-       <option>20</option>
-       <option>23</option>
-       <option>27</option>
-       <option>30</option>
-       <option>33</option>
-       <option>37</option>
-       <option>40</option>
-       <option>43</option>
-       <option>47</option>
-       <option>50</option>
-       <option>53</option>
-       <option>57</option>
-       <option>60</option>
+       <option value="0">0 (1mW)</option>
+       <option value="3">3 (2mW)</option>
+       <option value="7">7 (5mW)</option>
+       <option value="10">10 (10mW)</option>
+       <option value="13">13 (20mW)</option>
+       <option value="17">17 (50mW)</option>
+       <option value="20">20 (100mW)</option>
+       <option value="23">23 (200mW)</option>
+       <option value="27">27 (500mW)</option>
+       <option value="30">30 (1W)</option>
+       <option value="33">33 (2W)</option>
+       <option value="37">37 (5W)</option>
+       <option value="40">40 (10W)</option>
+       <option value="43">43 (20W)</option>
+       <option value="47">47 (50W)</option>
+       <option value="50">50 (100W)</option>
+       <option value="53">53 (200W)</option>
+       <option value="57">57 (500W)</option>
+       <option value="60">60 (1kW)</option>
       </select>
-      <output name="milliwatts"></output>
      </div>
      <div class="form-group">
       <label for="config-tx_percentage">TX ratio (%)</label>
