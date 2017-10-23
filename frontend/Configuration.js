@@ -48,11 +48,12 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {status, hostname, ip, form} = props
+		let {status, hostname, ip, form, submit} = props
 		this.status = status
 		this.hostname = hostname
 		this.ip = ip
 		this.form = form
+		this.submit = submit
 
 		this.callsign = $(this.form[0].elements.callsign)
 		this.gps = $(this.form[0].elements.gps)
@@ -86,6 +87,10 @@ class Configuration {
 			})
 		})
 
+		let enableForm = () => {this.submit.prop('disabled', false)}
+		this.form.find('input').on('input change', enableForm)
+		this.form.find('select').on('change', enableForm)
+
 		this.gps.change(e => {
 			if(e.target.checked)
 				this.setGPS()
@@ -116,6 +121,7 @@ class Configuration {
 		)
 		this.power.trigger('input')
 		this.form.validator('validate')
+		this.submit.prop('disabled', true)
 	}
 
 	handleMessage(event) {

@@ -37,7 +37,8 @@ class App {
 			status: $('#config-status'),
 			hostname: $('#config-hostname'),
 			ip: $('#config-ip'),
-			form: $('#config-form')
+			form: $('#config-form'),
+			submit: $('#config-submit')
 		})
 
 		// setup routing
