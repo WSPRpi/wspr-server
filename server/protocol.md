@@ -18,3 +18,4 @@ The commands are as follows. Where it makes sense, the command data may be empty
 * X for tX percentage. Exactly 3 digits specifying 0-100, multiple of 10.
 * S for Status. Arbitrary string containing hardware-reported status. Only sent from Hardware to Software in case of error.
 * T for Timestamp. Used to keep software in sync with hardware time. String in Unix `date` format.
+* V for Version number. String of format "1.1" or "test1" where 1 represents any arbitary number.
