@@ -48,18 +48,20 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {status, hostname, ip, form, submit} = props
+		let {status, hostname, ip, form, submit, bandhopper} = props
 		this.status = status
 		this.hostname = hostname
 		this.ip = ip
 		this.form = form
 		this.submit = submit
+		this.bandhopper = bandhopper
 
 		this.callsign = $(this.form[0].elements.callsign)
 		this.gps = $(this.form[0].elements.gps)
 		this.locator = $(this.form[0].elements.locator)
 		this.power = $(this.form[0].elements.power)
 		this.tx_percentage = $(this.form[0].elements.tx_percentage)
+		this.bandhop = $(this.form[0].elements.bandhop)
 
 		this.socket = new WebSocket(`ws://${location.host}/config`)
 		this.socket.onmessage = this.handleMessage
@@ -82,9 +84,20 @@ class Configuration {
 					d.value = d.value.toUpperCase()
 				else if(d.name == 'tx_percentage')
 					d.value = d.value.padStart(3, '0')
+				else if(d.name == 'bandhop')
+					d.value = d.value.split(',')
 
 				this.socket.send(JSON.stringify(d))
 			})
+			this.submit.prop('disabled', true)
+			toastr.success(
+				'New WSPR configuration written to hardware.',
+				'Configuration Saved',
+				{
+					preventDuplicates: true,
+					positionClass: 'toast-bottom-right'
+				}
+			)
 		})
 
 		let enableForm = () => {this.submit.prop('disabled', false)}
@@ -154,7 +167,12 @@ class Configuration {
 			this.onSync()
 			break
 		case 'tx_percentage':
-			this.tx_percentage.val(data.value)
+			this.tx_percentage.val(parseInt(data.value))
+			this.onSync()
+			break
+		case 'bandhop':
+			this.bandhop.val(data.value.join(','))
+			this.bandhopper.redraw()
 			this.onSync()
 			break
 		default:

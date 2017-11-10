@@ -101,6 +101,7 @@
        Locator (Use GPS: <input name="gps" data-validate="false" type="checkbox">)
       </label>
       <input required data-locator name="locator" type="text" id="config-locator" class="form-control">
+      <div class="help-block with-errors"></div>
      </div>
      <div class="form-group">
       <label for="config-power">Power (dBm)</label>
@@ -142,10 +143,21 @@
        <option>100</option>
       </select>
      </div>
+     <input
+      name="bandhop"
+      id="config-bandhop"
+      type="hidden"
+      value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+     />
      <button id="config-submit" type="submit" class="btn btn-primary">Write Configuration</button>
     </form>
     </div>
-    <div class="col-lg-4"></div>
+    <div class="col-lg-4">
+     <h2>Bandhop</h2>
+     <canvas id="bandhopper" width="2400" height="1200">
+      Use a browser that supports the <code>&lt;canvas&gt;</code> tag.
+     </canvas>
+    </div>
     <div class="col-lg-4">
     <h2>Status</h2>
     <table class="table">

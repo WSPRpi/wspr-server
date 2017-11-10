@@ -28,3 +28,11 @@
 	z-index: 1000;
 	text-align: center;
 }
+
+#bandhopper
+{
+	background-color: #EEEEEE;
+	cursor: crosshair;
+	width: 100%;
+	height: auto;
+}

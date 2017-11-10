@@ -18,7 +18,6 @@ class Serial:
 		self.responses.put(('L', 'GPS'))
 		self.responses.put(('P', '10'))
 		self.responses.put(('B', ','.join(['2'] * 24)))
-		self.responses.put(('F', '1337000'))
 		self.responses.put(('X', '010'))
 		self.responses.put(('S', "Frobnicating the eggs...."))
 		self.responses.put(('T', get_time_as_string()))
@@ -51,4 +50,4 @@ class GPIO:
 		pass
 
 	def output(port, value):
-		print("GPIO {}: {}".format(port, value))
+		pass

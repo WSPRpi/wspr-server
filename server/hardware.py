@@ -30,7 +30,6 @@ class Hardware:
 			'L': self.handle_locator,
 			'P': self.handle_power,
 			'B': self.handle_bandhop,
-			'F': self.handle_frequency,
 			'X': self.handle_tx_percentage,
 			'S': self.handle_status,
 			'T': self.handle_timestamp
@@ -41,7 +40,6 @@ class Hardware:
 			('L', ''),
 			('P', ''),
 			('B', ''),
-			('F', ''),
 			('X', ''),
 			('S', ''),
 			('T', '')
@@ -51,7 +49,8 @@ class Hardware:
 			'callsign': 'C',
 			'locator': 'L',
 			'power': 'P',
-			'tx_percentage': 'X'
+			'tx_percentage': 'X',
+			'bandhop': 'B'
 		}
 
 		self.GPIO_high = False
@@ -86,9 +85,6 @@ class Hardware:
 
 	def handle_bandhop(self, data):
 		self.state.set_from_hardware('bandhop', data.split(','))
-
-	def handle_frequency(self, data):
-		self.state.set_from_hardware('frequency', int(data))
 
 	def handle_tx_percentage(self, data):
 		self.state.set_from_hardware('tx_percentage', int(data))
@@ -128,6 +124,8 @@ class Hardware:
 		Thread(target=target).start()
 
 	def on_state_change(self, key, value):
+		if key == 'bandhop':
+			value = ','.join(value)
 		self.send_data(self.state_commands[key], value)
 
 	def toggle_GPIO(self):

@@ -7,7 +7,6 @@ class SharedState:
 			'locator': 'GPS',
 			'power': 10,
 			'bandhop': ['0'] * 24,
-			'frequency': 1337000,
 			'tx_percentage': 20,
 			'status': 'Loading...'
 		}

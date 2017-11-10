@@ -3,6 +3,7 @@ import SpotTable from './SpotTable'
 import SpotMap from './SpotMap'
 import QTHMap from './QTHMap'
 import Configuration from './Configuration'
+import Bandhop from './Bandhop'
 
 import Maidenhead from 'maidenhead'
 import $ from 'jquery'
@@ -33,12 +34,17 @@ class App {
 		this.qth = new QTHMap({
 			map: '#qth-map'
 		})
+		this.bandhopper = new Bandhop({
+			widget: $('#bandhopper'),
+			input: $('#config-bandhop')
+		})
 		this.config = new Configuration({
 			status: $('#config-status'),
 			hostname: $('#config-hostname'),
 			ip: $('#config-ip'),
 			form: $('#config-form'),
-			submit: $('#config-submit')
+			submit: $('#config-submit'),
+			bandhopper: this.bandhopper
 		})
 
 		// setup routing
