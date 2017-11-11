@@ -105,7 +105,7 @@ class Hardware:
 		try:
 			handler = self.handlers[command]
 		except KeyError:
-			raise NotImplementedException("no handler for {}".format(command))
+			raise NotImplementedError("no handler for {}".format(command))
 
 		returned = handler(rest)
 		if returned is not None:
