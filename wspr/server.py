@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-
 from tornado.web import Application as WebApp
 from tornado.ioloop import IOLoop as IO, PeriodicCallback
 
-from web_endpoints import *
-from websocket_endpoints import *
-from shared_state import SharedState
-from hardware import Hardware
+from wspr.web_endpoints import *
+from wspr.websocket_endpoints import *
+from wspr.shared_state import SharedState
+from wspr.hardware import Hardware
 
 def create_app():
 	state = SharedState()
@@ -19,7 +17,7 @@ def create_app():
 		(r'/config', ConfigEndpoint, {'state': state})
 	]), hardware)
 
-if __name__ == '__main__':
+def run():
 	app, hardware = create_app()
 	app.listen(8080)
 	hardware.toggle_GPIO()

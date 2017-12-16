@@ -8,10 +8,9 @@ import serial
 
 # from serial import Serial
 # import RPi.GPIO as GPIO
-from fake_serial import Serial
-from fake_serial import GPIO
+from wspr.fake_serial import Serial, GPIO
 
-from wire_format import for_wire, from_wire
+from wspr.wire_format import for_wire, from_wire
 
 class Hardware:
 	def __init__(self, state):

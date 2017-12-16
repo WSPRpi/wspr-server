@@ -3,7 +3,7 @@ from subprocess import check_output
 from time import sleep
 from random import randint
 
-from wire_format import for_wire, from_wire
+from wspr.wire_format import for_wire, from_wire
 
 def get_time_as_string():
 	return check_output(['date', '+%T']).decode('ascii').strip()
