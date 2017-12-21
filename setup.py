@@ -9,6 +9,11 @@ setup(
 		'pyserial >= 3.4'
 	],
 	entry_points={
-		'console_scripts': ['wspr-server = wspr.server:run']
+		'console_scripts': ['wspr-server = wspr.server:run'],
+		'setuptools.installation': ['eggsecutable = wspr.server:run']
+	},
+	include_package_data=True,
+	package_data={
+		'static': ['index.html', 'bundle.js']
 	}
 )

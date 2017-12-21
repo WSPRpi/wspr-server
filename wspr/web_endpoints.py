@@ -1,16 +1,14 @@
 from tornado.escape import json_encode
 from tornado.web import RequestHandler, StaticFileHandler
-import sqlite3 as sql
+from pkg_resources import resource_string
 
-class StaticEndpoint(StaticFileHandler):
-	def initialize(self, *args, **kwargs):
-		kwargs['path'] = 'static/'
-		super().initialize(*args, **kwargs)
+class IndexEndpoint(RequestHandler):
+	def get(self):
+		return resource_string('static', 'index.html')
 
-class IndexEndpoint(StaticEndpoint):
-	def initialize(self, *args, **kwargs):
-		kwargs['default_filename'] = 'index.html'
-		super().initialize(*args, **kwargs)
+class BundleEndpoint(RequestHandler):
+	def get(self):
+		return resource_string(__name__, 'bundle.js')
 
 class SpotEndpoint(RequestHandler):
 	def get(self):

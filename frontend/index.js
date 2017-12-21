@@ -6,7 +6,7 @@ require('bootstrap-validator')
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'leaflet/dist/leaflet.css'
-import 'toastr/package/toastr.css'
+import 'toastr/build/toastr.css'
 import './app.css'
 
 jQuery(document).ready(() => {

@@ -11,8 +11,8 @@ def create_app():
 	hardware = Hardware(state)
 	state.hardware_listener = hardware
 	return (WebApp([
-		(r'/()', IndexEndpoint),
-		(r'/static/(.*)', StaticEndpoint),
+		(r'/', IndexEndpoint),
+		(r'/bundle.js', BundleEndpoint),
 		(r'/spots', SpotEndpoint),
 		(r'/config', ConfigEndpoint, {'state': state})
 	]), hardware)
