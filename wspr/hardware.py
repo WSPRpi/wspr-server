@@ -9,7 +9,6 @@ import serial
 # from serial import Serial
 # import RPi.GPIO as GPIO
 from wspr.fake_serial import Serial, GPIO
-
 from wspr.wire_format import for_wire, from_wire
 
 class Hardware:
@@ -119,8 +118,7 @@ class Hardware:
 			IO.current().add_callback(self.route_command, data)
 
 	def go(self):
-		target = self.manage_serial
-		Thread(target=target).start()
+		Thread(target=self.manage_serial, daemon=True).start()
 
 	def on_state_change(self, key, value):
 		if key == 'bandhop':
