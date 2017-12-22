@@ -1,14 +1,15 @@
 from tornado.escape import json_encode
 from tornado.web import RequestHandler, StaticFileHandler
 from pkg_resources import resource_string
+import pkgutil
 
 class IndexEndpoint(RequestHandler):
 	def get(self):
-		return resource_string('static', 'index.html')
+		self.write(resource_string('static', 'index.html'))
 
 class BundleEndpoint(RequestHandler):
 	def get(self):
-		return resource_string(__name__, 'bundle.js')
+		self.write(resource_string('static', 'bundle.js'))
 
 class SpotEndpoint(RequestHandler):
 	def get(self):
