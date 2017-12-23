@@ -1,15 +1,16 @@
-from tornado.ioloop import IOLoop as IO
-
+import os
+import serial
 import socket
 from subprocess import check_output, Popen as invoke_process
 from threading import Thread
+from tornado.ioloop import IOLoop as IO
 
-import serial
-
-# from serial import Serial
-# import RPi.GPIO as GPIO
-from wspr.fake_serial import Serial, GPIO
 from wspr.wire_format import for_wire, from_wire
+if os.environ.get('WSPR_FAKE_MODE'):
+	from wspr.fake_serial import Serial, GPIO
+else:
+	from serial import Serial
+	import RPi.GPIO as GPIO
 
 class Hardware:
 	def __init__(self, state):
