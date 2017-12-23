@@ -6,7 +6,10 @@ setup(
 	packages=find_packages(),
 	install_requires=[
 		'tornado >= 4.5',
-		'pyserial >= 3.4'
+		'pyserial >= 3.4',
+		'requests >= 2.18',
+		'beautifulsoup4 >= 4.6',
+		'lxml >= 4.0'
 	],
 	entry_points={
 		'console_scripts': ['wspr-server = wspr.server:run'],

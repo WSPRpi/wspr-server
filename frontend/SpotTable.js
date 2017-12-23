@@ -14,7 +14,7 @@ class SpotTable {
 		let renderTime = (time => moment
 			.unix(time)
 			.utc()
-			.format('YYYY-MM-DD hh:mm')
+			.format('YYYY-MM-DD HH:mm')
 		)
 
 		let html = spots
@@ -30,7 +30,6 @@ class SpotTable {
  <td>${spot.reporter}</td>
  <td>${spot.reporter_grid}</td>
  <td>${spot.km}</td>
- <td>${spot.az}</td>
 </tr>
 			`))
 			.join('')

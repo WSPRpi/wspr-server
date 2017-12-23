@@ -1,7 +1,11 @@
+from tornado.gen import coroutine
 from tornado.escape import json_encode
 from tornado.web import RequestHandler, StaticFileHandler
 from pkg_resources import resource_string
-import pkgutil
+
+from concurrent.futures import ThreadPoolExecutor
+
+from .scraper import scrape_spots
 
 class IndexEndpoint(RequestHandler):
 	def get(self):
@@ -11,30 +15,27 @@ class BundleEndpoint(RequestHandler):
 	def get(self):
 		self.write(resource_string('static', 'bundle.js'))
 
+@coroutine
+def collect_spots(callsign1, callsign2):
+	with ThreadPoolExecutor() as executor:
+		jobs = []
+		if callsign1:
+			jobs.append(executor.submit(scrape_spots, callsign1, ''))
+			jobs.append(executor.submit(scrape_spots, '', callsign1))
+		if callsign2:
+			jobs.append(executor.submit(scrape_spots, callsign2, ''))
+			jobs.append(executor.submit(scrape_spots, '', callsign2))
+		results = yield jobs
+		return sum(results, [])
+
 class SpotEndpoint(RequestHandler):
+	@coroutine
 	def get(self):
-		def extract_arg(name):
-			return (self.get_arguments(name) or [None])[0]
+		callsign1 = self.get_argument('callsign1', default='')
+		callsign2 = self.get_argument('callsign2', default='')
 
-		callsign1 = extract_arg('callsign1')
-		callsign2 = extract_arg('callsign2')
-		when = extract_arg('when')
-
-		query = '''
-SELECT * FROM spots WHERE
-	datetime(timestamp, 'unixepoch') > datetime('now', ?) AND
-	(callsign = ? OR callsign = ? OR
-         reporter = ? OR reporter = ?)
-		'''
-
-		connection = sql.connect('file:spot-cache.db?mode=ro', uri=True)
-		connection.row_factory = sql.Row
-		rows = connection.execute(query, [
-			when,
-			callsign1,
-			callsign2,
-			callsign1,
-			callsign2
-		])
-		spots = [dict(r) for r in rows]
+		key = lambda x: (x['timestamp'], x['callsign'], x['reporter'])
+		spots = yield collect_spots(callsign1, callsign2)
+		spots = list({key(x): x for x in spots}.values())
+		spots.sort(key=lambda x: x['timestamp'], reverse=True)
 		self.write(json_encode({'spots': spots}))
