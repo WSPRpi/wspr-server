@@ -1,6 +1,6 @@
 class SpotSearch {
 	constructor(props) {
-		let {input1, input2, inputWhen, form, onUpdate} = props
+		let {input1, input2, form, onUpdate} = props
 
 		form.on('submit', e => {
 			input1.blur()
@@ -8,8 +8,7 @@ class SpotSearch {
 
 			let callsign1 = input1.val().trim().toUpperCase()
 			let callsign2 = input2.val().trim().toUpperCase()
-			let when = inputWhen.val()
-			onUpdate(callsign1, callsign2, when)
+			onUpdate(callsign1, callsign2)
 			e.preventDefault()
 		})
 	}
