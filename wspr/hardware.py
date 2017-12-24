@@ -7,7 +7,7 @@ from threading import Thread
 from tornado.ioloop import IOLoop as IO
 
 from wspr.wire_format import for_wire, from_wire
-if os.environ.get('WSPR_FAKE_MODE'):
+if os.environ.get('WSPR_EMULATOR'):
 	from wspr.emulator import Serial, GPIO
 else:
 	from serial import Serial

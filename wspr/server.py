@@ -1,6 +1,6 @@
 import logging as log
 import os
-from signal import signal, SIGINT
+from signal import signal, SIGINT, SIGTERM
 from sys import exit
 from tornado.web import Application as WebApp
 from tornado.ioloop import IOLoop as IO, PeriodicCallback
@@ -31,6 +31,7 @@ def setup():
 	log_level = log.DEBUG if os.environ.get('WSPR_DEBUG') else log.INFO
 	log.basicConfig(format='%(levelname)s:\t%(message)s', level=log_level)
 	signal(SIGINT, handle_interrupt)
+	signal(SIGTERM, handle_interrupt)
 
 def run():
 	setup()
