@@ -1,13 +1,14 @@
+import logging as log
 import os
 import serial
 import socket
-from subprocess import check_output, Popen as invoke_process
+from subprocess import check_output
 from threading import Thread
 from tornado.ioloop import IOLoop as IO
 
 from wspr.wire_format import for_wire, from_wire
 if os.environ.get('WSPR_FAKE_MODE'):
-	from wspr.fake_serial import Serial, GPIO
+	from wspr.emulator import Serial, GPIO
 else:
 	from serial import Serial
 	import RPi.GPIO as GPIO
@@ -15,6 +16,8 @@ else:
 class Hardware:
 	def __init__(self, state):
 		self.state = state
+
+		log.debug('connecting to serial port...')
 		self.serial = Serial(
 			port='/dev/ttyAMA0',
 			baudrate=115200,
@@ -22,6 +25,8 @@ class Hardware:
 			stopbits=serial.STOPBITS_ONE,
 			bytesize=serial.EIGHTBITS
 		)
+		log.debug('connected')
+
 		self.handlers = {
 			'H': self.handle_hostname,
 			'I': self.handle_ip,
@@ -62,14 +67,19 @@ class Hardware:
 		self.handle_ip(None)
 
 	def handle_hostname(self, data):
+		log.debug('retrieving hostname...')
 		hostname = socket.gethostname()
+		log.debug('hostname was %s', hostname)
 		self.state.set_from_hardware('hostname', hostname)
 		return ('H', hostname)
 
 	def handle_ip(self, data):
+		log.debug('retrieving IP...')
 		ip = check_output(['hostname' , '-I'])\
 			.decode('ascii')\
-			.strip()
+			.strip()\
+			.split(' ')[0]
+		log.debug('IP was %s', ip)
 		self.state.set_from_hardware('ip', ip)
 		return ('I', ip)
 
@@ -92,18 +102,24 @@ class Hardware:
 		self.state.set_from_hardware('status', data)
 
 	def handle_timestamp(self, data):
-		invoke_process(['date', '-d', data])
+		log.debug('setting the system time to %s...', data)
+		check_output(['date', '-d', data])
+		log.debug('time set')
 
 	def send_data(self, command, rest):
 		formatted = for_wire(command, rest)
 		self.serial.write(formatted)
+		log.debug('command sent: %s%s', command, rest)
 
 	def route_command(self, data):
 		command, rest = from_wire(data)
+		log.debug('command received: %s%s', command, rest)
+
 		handler = None
 		try:
 			handler = self.handlers[command]
 		except KeyError:
+			log.error('no handler for %s', command)
 			raise NotImplementedError("no handler for {}".format(command))
 
 		returned = handler(rest)
@@ -111,14 +127,18 @@ class Hardware:
 			self.send_data(*returned)
 		
 	def manage_serial(self):
+		log.debug('sending startup messages...')
 		for message in self.startup_messages:
 			self.send_data(*message)
+		log.debug('startup messages sent')
 
+		log.debug('starting message receive loop...')
 		while True:
 			data = self.serial.readline()
 			IO.current().add_callback(self.route_command, data)
 
 	def go(self):
+		self.toggle_GPIO()
 		Thread(target=self.manage_serial, daemon=True).start()
 
 	def on_state_change(self, key, value):
@@ -132,3 +152,4 @@ class Hardware:
 			self.GPIO_port,
 			GPIO.HIGH if self.GPIO_high else GPIO.LOW
 		)
+		log.debug('GPIO toggled')

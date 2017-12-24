@@ -1,3 +1,4 @@
+import logging as log
 from queue import Queue
 from subprocess import check_output
 from time import sleep
@@ -10,7 +11,7 @@ def get_time_as_string():
 
 class Serial:
 	def __init__(self, *args, **kwargs):
-		print("** USING FAKE HARDWARE **")
+		log.info('USING EMULATED HARDWARE')
 		self.responses = Queue()
 		self.responses.put(('I', ''))
 		self.responses.put(('H', ''))
@@ -28,14 +29,12 @@ class Serial:
 	def readline(self):
 		self.jitter()
 		command, rest = self.responses.get()
-		print("< {}{};".format(command, rest))
 		return for_wire(command, rest)
 
 	def write(self, data):
 		data = data + b'\n' # actual serial library does this for us
 		self.jitter()
 		command, rest = from_wire(data)
-		print("> {}{}".format(command, rest))
 
 class GPIO:
 	LOW = 0
