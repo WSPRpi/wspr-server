@@ -13,7 +13,7 @@ else:
 	from serial import Serial
 	import RPi.GPIO as GPIO
 
-class Hardware:
+class Monitor:
 	def __init__(self, state):
 		self.state = state
 
