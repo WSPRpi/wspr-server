@@ -3,7 +3,7 @@ import {feature} from 'topojson'
 import {geoAzimuthalEquidistant as azimuthal} from 'd3-geo'
 import $ from 'jquery'
 
-const SEA_COLOR_FOR_DAN_DERP = 'blue'
+const SEA_COLOR_FOR_DAN_DERP = '#6495ED'
 const LAND_COLOR_FOR_DAN_DERP = 'green'
 const LINE_COLOR_FOR_DAN_DERP = 'black'
 const BACKGROUND_COLOR_FOR_DAN_DERP = 'white'
