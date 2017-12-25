@@ -34,6 +34,7 @@ class Monitor:
 			'L': self.handle_locator,
 			'P': self.handle_power,
 			'B': self.handle_bandhop,
+			'D': self.handle_tx_disable,
 			'X': self.handle_tx_percentage,
 			'S': self.handle_status,
 			'T': self.handle_timestamp
@@ -44,6 +45,7 @@ class Monitor:
 			('L', ''),
 			('P', ''),
 			('B', ''),
+			('D', ''),
 			('X', ''),
 			('S', ''),
 			('T', '')
@@ -54,6 +56,7 @@ class Monitor:
 			'locator': 'L',
 			'power': 'P',
 			'tx_percentage': 'X',
+			'tx_disable': 'D',
 			'bandhop': 'B'
 		}
 
@@ -94,6 +97,9 @@ class Monitor:
 
 	def handle_bandhop(self, data):
 		self.state.set_from_hardware('bandhop', data.split(','))
+
+	def handle_tx_disable(self, data):
+		self.state.set_from_hardware('tx_disable', data.split(','))
 
 	def handle_tx_percentage(self, data):
 		self.state.set_from_hardware('tx_percentage', int(data))
@@ -142,7 +148,7 @@ class Monitor:
 		Thread(target=self.manage_serial, daemon=True).start()
 
 	def on_state_change(self, key, value):
-		if key == 'bandhop':
+		if key in {'bandhop', 'tx_disable'}:
 			value = ','.join(value)
 		self.send_data(self.state_commands[key], value)
 

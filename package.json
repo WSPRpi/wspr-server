@@ -29,6 +29,7 @@
     "leaflet": "^1.1.0",
     "maidenhead": "^1.0.7",
     "moment": "^2.18.1",
+    "svgjs": "^2.6.2",
     "toastr": "^2.1.2",
     "topojson": "^3.0.0"
   }

@@ -24,7 +24,7 @@
    </ul>
    <form
     id="callsigns-form"
-    class="navbar-form navbar-right"
+    class="navbar-form"
     role="search"
     onsubmit="event.preventDefault();"
    >
@@ -77,8 +77,9 @@
    <div id="qth-map"></div>
   </div>
   <div id="config-page" class="page"><div class="container">
-   <div class="col-lg-4">
-    <h2>Configuration</h2>
+   <h1>Configuration</h1>
+   <div class="col-lg-3">
+    <h2>Details</h2>
     <form id="config-form" autocomplete="off">
      <div class="form-group">
       <label for="config-callsign">Callsign</label>
@@ -138,16 +139,24 @@
       type="hidden"
       value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
      />
+     <input
+      name="tx_disable"
+      id="config-tx_disable"
+      type="hidden"
+      value="0,0,0,0,0,0,0,0,0,0,0,0"
+     />
      <button id="config-submit" type="submit" class="btn btn-primary">Write Configuration</button>
     </form>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-6">
      <h2>Bandhop</h2>
-     <canvas id="bandhopper" width="2400" height="1200">
-      Use a browser that supports the <code>&lt;canvas&gt;</code> tag.
-     </canvas>
+     <div id="bandhopper"></div>
+     <p>
+Use this to configure which band is active at a given time of day.
+The "TX" button may be toggled to disable transmission on that band.
+     </p>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-3">
     <h2>Status</h2>
     <table class="table">
      <tbody>

@@ -62,6 +62,7 @@ class Configuration {
 		this.power = $(this.form[0].elements.power)
 		this.tx_percentage = $(this.form[0].elements.tx_percentage)
 		this.bandhop = $(this.form[0].elements.bandhop)
+		this.txdisable = $(this.form[0].elements.txdisable)
 
 		this.socket = new WebSocket(`ws://${location.host}/config`)
 		this.socket.onmessage = this.handleMessage
@@ -84,7 +85,7 @@ class Configuration {
 					d.value = d.value.toUpperCase()
 				else if(d.name == 'tx_percentage')
 					d.value = d.value.padStart(3, '0')
-				else if(d.name == 'bandhop')
+				else if(d.name == 'bandhop' || d.name == 'tx_disable')
 					d.value = d.value.split(',')
 
 				this.socket.send(JSON.stringify(d))
@@ -125,14 +126,13 @@ class Configuration {
 
 	onSync() {
 		toastr.info(
-			'The WSPR hardware sent fresh configuration data.',
+			'The WSPR hardware settings are up-to-date.',
 			'Hardware Synchronized',
 			{
 				preventDuplicates: true,
 				positionClass: 'toast-bottom-right'
 			}
 		)
-		this.power.trigger('input')
 		this.form.validator('validate')
 		this.submit.prop('disabled', true)
 	}
@@ -171,8 +171,11 @@ class Configuration {
 			this.onSync()
 			break
 		case 'bandhop':
-			this.bandhop.val(data.value.join(','))
-			this.bandhopper.redraw()
+			this.bandhopper.setBandhop(data.value)
+			this.onSync()
+			break
+		case 'tx_disable':
+			this.bandhopper.setTxDisable(data.value)
 			this.onSync()
 			break
 		default:

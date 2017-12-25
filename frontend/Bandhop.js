@@ -1,18 +1,25 @@
+import SVG from 'svgjs'
+import $ from 'jquery'
+
+const band_reservation = 12
+const hour_reservation = 10
+const dx = (100 - band_reservation) / 24
+const dy = (100 - hour_reservation) / 12
+
 class Bandhop {
 	constructor(props) {
-		this.getData = this.getData.bind(this)
-		this.setData = this.setData.bind(this)
+		this.getBandhop = this.getBandhop.bind(this)
+		this.setBandhop = this.setBandhop.bind(this)
+		this.getTxDisable = this.getTxDisable.bind(this)
+		this.setTxDisable = this.setTxDisable.bind(this)
+		this.draw = this.draw.bind(this)
 		this.redraw = this.redraw.bind(this)
-		this.onclick = this.onclick.bind(this)
-		let {widget, input} = props
-		this.widget = widget
-		this.widget.click(this.onclick)
-		this.ctx = this.widget[0].getContext('2d')
-		this.input = input
 
-		this.width = 2400
-		this.height = 1200
-		this.size = 100
+		let {widget, bandhop, txdisable} = props
+		this.svg = SVG(widget).size("100%", "280px")
+		this.bandhop = bandhop
+		this.txdisable = txdisable
+
 		this.hours = [
 			'00',
 			'01',
@@ -24,7 +31,7 @@ class Bandhop {
 			'07',
 			'08',
 			'09',
-			'00',
+			'10',
 			'11',
 			'12',
 			'13',
@@ -40,84 +47,161 @@ class Bandhop {
 			'23'
 		]
 		this.bands = [
-			'160m',
-			'80m',
-			'60m',
-			'40m',
-			'30m',
-			'20m',
-			'17m',
-			'15m',
-			'12m',
-			'10m',
-			'6m',
-			'2m'
+			'160',
+			'80',
+			'60',
+			'40',
+			'30',
+			'20',
+			'17',
+			'15',
+			'12',
+			'10',
+			'6',
+			'2'
 		]
-		this.band_colours = [
-			'black',
-			'brown',
-			'red',
-			'orange',
-			'yellow',
-			'green',
-			'blue',
-			'indigo',
-			'violet',
-			'gold',
-			'silver',
-			'white'
-		]
-		this.redraw()
+
+		this.tx_lights = []
+		this.markers = []
+		this.draw()
 	}
 
-	getData() {return this.input.val().split(',').map(x => parseInt(x, 16))}
-	setData(data) {
-		this.input.val(data.map(x => x.toString(16)).join(','))
-		this.input.trigger('change')
+	draw() {
+		// axes
+		for(var i = 0; i < 24; i++) {
+			this.svg.text(this.hours[i]).move(
+				`${band_reservation + i * (100 - band_reservation) / 24}%`,
+				`${100 - hour_reservation}%`
+			)
+		}
+
+		for(var j = 0; j < 12; j++) {
+			let y = j * dy
+
+			this.svg.text(this.bands[j]).move(
+				`5%`,
+				`${y}%`,
+			)
+
+			// TX lights
+			let tx = this.svg.text('TX').move(
+				'0%',
+				`${y}%`
+			).attr({
+				fill: 'white'
+			})
+			$(tx.node).css({
+				cursor: 'pointer'
+			})
+			let band = j
+			tx.click(() => {
+				let txdisable = this.getTxDisable()
+				txdisable[band] = 1 - txdisable[band]
+				this.setTxDisable(txdisable)
+			})
+
+			let txbox = tx.bbox()
+			let light = this.svg.rect(txbox.w, txbox.h).move(
+				txbox.x,
+				txbox.y
+			).attr({
+				fill: 'black',
+				rx: '1%',
+				ry: '1%'
+			}).back()
+			this.tx_lights.push(light)
+		}
+
+		for(var i = 0; i < 24; i++) {
+			let x = band_reservation + i * dx + dx / 2
+
+			// blops
+			this.svg.line(
+				`${x}%`,
+				`${dy / 2 + 2}%`,
+				`${x}%`,
+				`${100 - hour_reservation - 2}%`
+			).stroke({width: '0.5%'}).attr({
+				stroke: '#ccc'
+			})
+
+			for(var j = 0; j < 12; j++) {
+				let y = j * dy + dy / 2
+				let circle = this.svg.circle('2.5%').attr({
+					fill: '#ccc'
+				}).center(
+					`${x}%`,
+					`${y + 2}%`
+				)
+				$(circle.node).css({
+					cursor: 'pointer'
+				})
+
+				let hour = i
+				let band = j
+				circle.click(() => {
+					let bandhop = this.getBandhop()
+					bandhop[hour] = band
+					this.setBandhop(bandhop)
+				})
+			}
+
+			// markers
+			let marker = this.svg.circle('3.5%').attr({
+				fill: '#337ab7'
+			}).center(
+				`${x}%`,
+				`50%`
+			)
+			this.markers.push(marker)
+		}
 	}
 
 	redraw() {
-		let data = this.getData()
-		this.ctx.clearRect(0, 0, this.width, this.height);
+		let bandhop = this.getBandhop()
+		let txdisable = this.getTxDisable()
 
-		this.ctx.lineWidth = 10
-		this.ctx.strokeStyle = '#cccccc'
-		for(var i = 0; i < this.width; i += this.size) {
-			this.ctx.beginPath()
-			this.ctx.moveTo(i, 0)
-			this.ctx.lineTo(i, this.height)
-			this.ctx.stroke()
-		}
-		for(var j = 0; j < this.height; j += this.size) {
-			this.ctx.beginPath()
-			this.ctx.moveTo(0, j)
-			this.ctx.lineTo(this.width, j)
-			this.ctx.stroke()
-		}
-		for(var i = 0; i < data.length; i++) {
-			this.ctx.fillStyle = this.band_colours[data[i]]
-			this.ctx.fillRect(
-				this.size * i,
-				this.size * data[i],
-				this.size,
-				this.size
+		// move markers
+		for(var i = 0; i < 24; i++) {
+			let x = band_reservation + i * dx + dx / 2
+			let y = bandhop[i] * dy + dy / 2 + 2
+			this.markers[i].animate({
+				ease: '<>',
+				duration: '0.3s'
+			}).center(
+				`${x}%`,
+				`${y}%`
 			)
 		}
-		this.ctx.stroke()
+
+		// enable TX lights
+		for(var j = 0; j < 12; j++) {
+			let enabled = txdisable[j] == '0'
+			this.tx_lights[j].attr({
+				fill: enabled ? 'green' : 'red'
+			})
+		}
 	}
 
-	onclick(e) {
-		let data = this.getData()
-		let posX = this.widget.offset().left
-		let posY = this.widget.offset().top
-		let pixX = e.pageX - posX
-		let pixY = e.pageY - posY
-		let x = this.width * (pixX / this.widget[0].clientWidth)
-		let y = this.height * (pixY / this.widget[0].clientHeight)
-		let i = Math.floor(x / this.size)
-		let j = Math.floor(y / this.size)
-		data[i] = j
-		this.setData(data)
+	getBandhop() {
+		return this.bandhop.val().split(',').map(x => parseInt(x, 16))
+	}
+
+	getTxDisable() {
+		return this.txdisable.val().split(',').map(x => parseInt(x, 2))
+	}
+
+	setBandhop(bandhop) {
+		bandhop = bandhop.map(x => x.toString(16)).join(',')
+		this.bandhop.val(bandhop)
+		this.bandhop.trigger('change')
+		this.redraw()
+	}
+
+	setTxDisable(txdisable) {
+		txdisable = txdisable.map(x => x.toString(16)).join(',')
+		this.txdisable.val(txdisable)
+		this.txdisable.trigger('change')
 		this.redraw()
 	}
 }

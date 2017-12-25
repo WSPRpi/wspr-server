@@ -33,8 +33,9 @@ class App {
 			map: '#qth-map'
 		})
 		this.bandhopper = new Bandhop({
-			widget: $('#bandhopper'),
-			input: $('#config-bandhop')
+			widget: 'bandhopper',
+			bandhop: $('#config-bandhop'),
+			txdisable: $('#config-tx_disable')
 		})
 		this.config = new Configuration({
 			status: $('#config-status'),

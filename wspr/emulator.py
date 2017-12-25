@@ -19,6 +19,7 @@ class Serial:
 		self.responses.put(('L', 'GPS'))
 		self.responses.put(('P', '10'))
 		self.responses.put(('B', ','.join(['2'] * 24)))
+		self.responses.put(('D', ','.join(['0'] * 12)))
 		self.responses.put(('X', '010'))
 		self.responses.put(('S', "Frobnicating the eggs...."))
 		self.responses.put(('T', get_time_as_string()))
