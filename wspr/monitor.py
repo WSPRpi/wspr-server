@@ -125,8 +125,8 @@ class Monitor:
 		try:
 			handler = self.handlers[command]
 		except KeyError:
-			log.error('no handler for %s', command)
-			raise NotImplementedError("no handler for {}".format(command))
+			log.warning('no handler for %s', command)
+			return
 
 		returned = handler(rest)
 		if returned is not None:
