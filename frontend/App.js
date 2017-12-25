@@ -19,6 +19,7 @@ class App {
 
 		this.search = new SpotSearch({
 			input1: $('#callsign-input1'),
+			nickname: $('#nickname'),
 			input2: $('#callsign-input2'),
 			form: $('#callsigns-form'),
 			onUpdate: this.fetchData
