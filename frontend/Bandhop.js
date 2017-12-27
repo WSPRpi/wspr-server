@@ -1,7 +1,7 @@
 import SVG from 'svgjs'
 import $ from 'jquery'
 
-const band_reservation = 12
+const band_reservation = 13
 const hour_reservation = 10
 const dx = (100 - band_reservation) / 24
 const dy = (100 - hour_reservation) / 12
@@ -47,18 +47,18 @@ class Bandhop {
 			'23'
 		]
 		this.bands = [
-			'160',
-			'80',
-			'60',
-			'40',
-			'30',
-			'20',
-			'17',
-			'15',
-			'12',
-			'10',
-			'6',
-			'2'
+			'2200m',
+			'630m',
+			'160m',
+			'80m',
+			'60m',
+			'40m',
+			'30m',
+			'20m',
+			'17m',
+			'15m',
+			'12m',
+			'10m'
 		]
 
 		this.tx_lights = []
