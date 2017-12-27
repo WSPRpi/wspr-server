@@ -45,7 +45,8 @@ class App {
 			ip: $('#config-ip'),
 			form: $('#config-form'),
 			submit: $('#config-submit'),
-			bandhopper: this.bandhopper
+			bandhopper: this.bandhopper,
+			callsign: $('#callsign-input1')
 		})
 
 		// setup routing

@@ -48,7 +48,7 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {version, status, hostname, ip, form, submit, bandhopper} = props
+		let {version, status, hostname, ip, form, submit, bandhopper, callsign} = props
 		this.version = version
 		this.status = status
 		this.hostname = hostname
@@ -56,6 +56,7 @@ class Configuration {
 		this.form = form
 		this.submit = submit
 		this.bandhopper = bandhopper
+		this.output_callsign = callsign
 
 		this.callsign = $(this.form[0].elements.callsign)
 		this.gps = $(this.form[0].elements.gps)
@@ -92,6 +93,7 @@ class Configuration {
 				this.socket.send(JSON.stringify(d))
 			})
 			this.submit.prop('disabled', true)
+			this.output_callsign.val(this.callsign.val())
 			toastr.success(
 				'New WSPR configuration written to hardware.',
 				'Configuration Saved',
