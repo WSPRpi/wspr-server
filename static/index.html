@@ -17,10 +17,10 @@
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
    <ul class="nav navbar-nav">
-    <li><a href="#/table">Spot Table</a>
-    <li><a href="#/spot-map">Great Circle Map</a>
-    <li><a href="#/qth-map">Map</a>
-    <li><a href="#/config">Configuration</a>
+    <li><a href="#/table"><span class="glyphicon glyphicon-list"></span> Spot Table</a>
+    <li><a href="#/spot-map"><span class="glyphicon glyphicon-globe"></span> Great Circle Map</a>
+    <li><a href="#/qth-map"><span class="glyphicon glyphicon-map-marker"></span> Map</a>
+    <li><a href="#/config"><span class="glyphicon glyphicon-check"></span> Configuration</a>
    </ul>
    <form
     id="callsigns-form"
@@ -43,12 +43,11 @@
      class="form-control"
      placeholder="Callsign #2"
     >
-    <input
+    <button
      id="callsign-submit"
-     class="btn btn-primary"
      type="submit"
-     value="Search"
-    >
+     class="btn btn-primary"
+    ><span class="glyphicon glyphicon-search"></span> Search</button>
    </form>
   </nav>
   <div id="spot-table-page" class="page">
@@ -146,7 +145,7 @@
       type="hidden"
       value="0,0,0,0,0,0,0,0,0,0,0,0"
      />
-     <button id="config-submit" type="submit" class="btn btn-primary">Write Configuration</button>
+     <button id="config-submit" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-saved"></span> Save Configuration</button>
     </form>
     </div>
     <div class="col-lg-6">
