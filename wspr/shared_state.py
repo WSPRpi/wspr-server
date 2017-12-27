@@ -5,13 +5,14 @@ class SharedState:
 		self._state = {
                         'hostname': 'localhost',
                         'ip': '0.0.0.0',
-			'callsign': 'W4NKR',
+			'callsign': 'M0WUT',
 			'locator': 'GPS',
 			'power': 10,
 			'bandhop': ['0'] * 24,
 			'tx_disable': ['0'] * 12,
 			'tx_percentage': 20,
-			'status': 'Loading...'
+			'status': 'Loading...',
+			'version': '',
 		}
 		self.hardware_listener = None
 		self.software_listeners = set()

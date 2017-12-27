@@ -48,7 +48,8 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {status, hostname, ip, form, submit, bandhopper} = props
+		let {version, status, hostname, ip, form, submit, bandhopper} = props
+		this.version = version
 		this.status = status
 		this.hostname = hostname
 		this.ip = ip
@@ -140,6 +141,9 @@ class Configuration {
 	handleMessage(event) {
 		let data = JSON.parse(event.data)
 		switch(data.name) {
+		case 'version':
+			this.version.text(data.value)
+			break
 		case 'status':
 			this.status.text(data.value)
 			break

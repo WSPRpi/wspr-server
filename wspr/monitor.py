@@ -36,6 +36,7 @@ class Monitor:
 			'B': self.handle_bandhop,
 			'D': self.handle_tx_disable,
 			'X': self.handle_tx_percentage,
+			'V': self.handle_version,
 			'S': self.handle_status,
 			'T': self.handle_timestamp
 		}
@@ -47,6 +48,7 @@ class Monitor:
 			('B', ''),
 			('D', ''),
 			('X', ''),
+			('V', ''),
 			('S', ''),
 			('T', '')
 		]
@@ -103,6 +105,9 @@ class Monitor:
 
 	def handle_tx_percentage(self, data):
 		self.state.set_from_hardware('tx_percentage', int(data))
+
+	def handle_version(self, data):
+		self.state.set_from_hardware('version', data)
 
 	def handle_status(self, data):
 		self.state.set_from_hardware('status', data)

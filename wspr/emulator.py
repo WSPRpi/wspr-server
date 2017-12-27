@@ -21,7 +21,8 @@ class Serial:
 		self.responses.put(('B', ','.join(['2'] * 24)))
 		self.responses.put(('D', ','.join(['0'] * 12)))
 		self.responses.put(('X', '010'))
-		self.responses.put(('S', "Frobnicating the eggs...."))
+		self.responses.put(('V', 'emulator-0.1'))
+		self.responses.put(('S', "EMULATED"))
 		self.responses.put(('T', get_time_as_string()))
 
 	def jitter(self):
