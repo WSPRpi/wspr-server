@@ -163,4 +163,3 @@ class Monitor:
 			self.GPIO_port,
 			GPIO.HIGH if self.GPIO_high else GPIO.LOW
 		)
-		log.debug('GPIO toggled')

@@ -47,8 +47,8 @@ class GPIO:
 	def setmode(*args, **kwargs):
 		pass
 
-	def setup(*args, **kwargs):
-		pass
+	def setup(port, *args, **kwargs):
+		log.debug('emulated GPIO #%d setup', port)
 
 	def output(port, value):
-		pass
+		log.debug('GPIO #%d = %d', port, value)
