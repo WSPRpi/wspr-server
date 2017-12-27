@@ -20,7 +20,7 @@ class BundleEndpoint(RequestHandler):
 @coroutine
 def collect_spots(callsign1, callsign2):
 	log.debug('collecting spots...')
-	with ThreadPoolExecutor() as executor:
+	with ThreadPoolExecutor(4) as executor:
 		jobs = []
 		if callsign1:
 			jobs.append(executor.submit(scrape_spots, callsign1, ''))
