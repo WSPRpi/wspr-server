@@ -5,9 +5,12 @@ class SpotSearch {
 		input1.on('input', e => {
 			let call = input1.val().trim().toUpperCase()
 			switch(String(call) /* massive JS bullshit */) {
+			case 'M0VFC':
+				nickname.html('<code>titanic.jpg</code> loaded...')
+				break
 			case 'M1GEO':
 				console.warn("F4NTA DETECTED")
-				nickname.html('<span style="color: orange">George "Fanta" Smart!</span>')
+				nickname.html('<span style="color: orange">George Smart, spiller of Fanta, overlord of LIDs</span>')
 				break
 			case 'G3ZAY':
 				nickname.html('<a href="https://www.youtube.com/watch?v=iuI_iPiWVlc">G3ZAY at his best</a>')
