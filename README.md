@@ -1,37 +1,33 @@
-# WSPR Software Support
+# WSPR Server
 
 This repository contains a software frontend for the WSPRPi hardware by M0WUT.
 
 ## Environment Variables
 
-The software takes no arguments, but responds to environment variables as follows:
+The software takes no command-line arguments, but responds to environment variables as follows:
 * Setting `WSPR_EMULATOR` to be non-blank results in the software talking to an emulated hardware device without touching real hardware. This is useful for developing and sanity checks.
 * Setting `WSPR_DEBUG` non-blank produces more verbose logging output.
 
 ## Prerequisites
-The software requires Python 3.4.
+The software is built and runs with Python 3.4.
+Other Python versions may or may not work as intended.
 If the software is not run in emulation mode, it is expected that the hardware is configured. Unexpected results may occur otherwise.
 
 ## End-user setup.
-If using a pre-built binary, follow these steps.
-* Ensure you have installed the following Python packages via `pip`: `tornado >= 4.5`, `pyserial >= 3.4`, `requests >= 2.18`, `beautifulsoup4 >= 4.6`, `lxml >= 4.0`.
-* Place the `.egg` file wherever you desire, but it must retain the same filename you were given (a technical limitation of the distribution format).
-* Make it executable.
-* Run it.
+
+Ensure `~/.local/bin/` is on your `$PATH`, and you have the Python 3 version of `pip`, `pip3`.
+Then simply `pip3 install wspr-server`.
 
 ## Developer Setup
-Once you have cloned this repository locally, first build the frontend, then the backend parts of the application. If you have been given a precompiled `bundle.js`, place it in `static/` and skip the frontend step.
+Once you have cloned this repository locally, first build the frontend, then the backend parts of the application.
 
 ### Frontend
 * Ensure you have a recent version of `npm`.
 * Run `npm install`.
-* Run `node_modules/webpack/bin/webpack.js` - this will run for a while and then produce a bundled file in `static/`.
+* Run `npm run build` - this will run for a while and then produce a bundled file in `static/`. If you are working on the frontend, you may automatically rebuild the files on change with `npm run watch`.
 
 ### Backend
-* Produce a sandboxed python environment with `pyvenv env`.
-* Activate it with `source env/bin/activate` - this will need repeating if you come back with a new shell. You've now got a local python package installation directory, python runtime, and pip.
-* Run `pip install` for the packages specified above. `setup.py` can install these for you, but it occasionally does so by building from source for some reason.
-* Finally, run `python setup.py develop`. You should now have a sane environment to begin work. You may run `wspr-server` to begin the server, which should behave identically to running an egg.
-* To build an egg for distribution, run `python setup.py bdist_egg`. This will produce a .egg file in `dist`.
+This is a standard `setuptools` project. See the [developer guide](http://setuptools.readthedocs.io/en/latest/setuptools.html).
+Standard Python best-practices like the use of a virtual environment hold.
 
 Happy Hacking! M0IKY.
