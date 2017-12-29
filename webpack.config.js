@@ -1,9 +1,8 @@
 module.exports = {
 	entry: './frontend/index.js',
 	output: {
-		filename: "static/bundle.js"
+		filename: 'static/bundle.js'
 	},
-	watch: true,
 	module: {
 		loaders: [
 			{
@@ -11,7 +10,7 @@ module.exports = {
 				loader: 'babel-loader',
 				exclude: /node_modules/,
 				query: {
-					presets: ['es2017']
+					presets: ['modern-browsers']
 				}
 			},
 			{
