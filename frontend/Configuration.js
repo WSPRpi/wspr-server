@@ -146,8 +146,8 @@ class Configuration {
 
 	onSync() {
 		toastr.info(
-			'The WSPR hardware settings are up-to-date.',
-			'Hardware Synchronized',
+			'WSPR settings are up-to-date.',
+			'New Data Received',
 			{
 				preventDuplicates: true,
 				positionClass: 'toast-bottom-right'
