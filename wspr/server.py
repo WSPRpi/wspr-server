@@ -11,21 +11,27 @@ from wspr.router import Router
 from wspr.monitor import Monitor
 
 PORT = 8080
+monitor = None
 
 def create_app():
+	global monitor
+
 	router = Router()
 	monitor = Monitor(router)
 	router.hardware_listener = monitor
 
-	return (WebApp([
+	return WebApp([
 		(r'/', IndexEndpoint),
 		(r'/bundle.js', BundleEndpoint),
 		(r'/spots', SpotEndpoint),
 		(r'/config', ConfigEndpoint, {'router': router})
-	]), monitor)
+	])
 
 def handle_interrupt(sig, frame):
 	log.info('interrupted, shutting down...')
+	log.debug('cleaning up...')
+	monitor.cleanup()
+	log.debug('cleanup done, calling exit()...')
 	exit(0)
 	
 def setup():
@@ -38,7 +44,7 @@ def run():
 	setup()
 	log.debug('application startup...')
 
-	app, monitor = create_app()
+	app = create_app()
 	log.debug('application created')
 	app.listen(PORT)
 	log.info('application listening on port %d', PORT)

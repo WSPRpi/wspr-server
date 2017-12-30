@@ -12,7 +12,7 @@ setup(
 		'pyserial >= 3.4',
 		'requests >= 2.18',
 		'beautifulsoup4 >= 4.6',
-		'lxml >= 4.0'
+		'RPi.GPIO' >= '0.6'
 	],
 	entry_points={
 		'console_scripts': ['wspr-server = wspr.server:run']

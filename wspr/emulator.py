@@ -55,3 +55,6 @@ class GPIO:
 
 	def output(port, value):
 		log.debug('GPIO #%d = %d', port, value)
+
+	def cleanup():
+		log.debug('GPIO cleaned up')

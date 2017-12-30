@@ -9,7 +9,7 @@ The software takes no command-line arguments, but responds to environment variab
 * Setting `WSPR_DEBUG` non-blank produces more verbose logging output.
 
 ## Prerequisites
-The software is built and runs with Python 3.4.
+The software is built and runs with Python 3.5.
 Other Python versions may or may not work as intended.
 If the software is not run in emulation mode, it is expected that the hardware is configured. Unexpected results may occur otherwise.
 

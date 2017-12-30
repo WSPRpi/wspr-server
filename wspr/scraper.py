@@ -43,7 +43,7 @@ def scrape_spots(call, reporter):
 	log.debug('scrape %d: download complete', scrape_id)
 
 	log.debug('scrape %d: parsing data...', scrape_id)
-	data = [[x.get_text().strip() for x in row.find_all('td')] for row in TagSoup(doc, 'lxml').find_all('table')[-1].find_all('tr')]
+	data = [[x.get_text().strip() for x in row.find_all('td')] for row in TagSoup(doc, 'html.parser').find_all('table')[-1].find_all('tr')]
 	rows = [row_data(*row) for row in data if len(row) == 12]
 	log.debug('scrape %d: complete, %d spots retrieved', scrape_id, len(rows))
 	return rows

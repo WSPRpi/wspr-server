@@ -137,6 +137,8 @@ class Monitor:
 			self.router.upgrade_success()
 			self.reset(False)
 
+			log.debug("cleaning up...")
+			self.cleanup()
 			log.debug("running exec()...")
 			os.execlp("wspr-server", "wspr-server")
 			# process replaced, job done
@@ -198,3 +200,6 @@ class Monitor:
 			GPIO.HIGH if high else GPIO.LOW
 		)
 		sleep(0.1) # make sure this propagates to hardware
+
+	def cleanup(self):
+		GPIO.cleanup()
