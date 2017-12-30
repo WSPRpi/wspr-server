@@ -46,7 +46,11 @@ class App {
 			form: $('#config-form'),
 			submit: $('#config-submit'),
 			bandhopper: this.bandhopper,
-			callsign: $('#callsign-input1')
+			callsign: $('#callsign-input1'),
+			upgrade_software: $('#upgrade-software'),
+			upgrade_firmware: $('#upgrade-software'),
+			upgrade_dialog: $('#upgrade-dialog'),
+			upgrade_log: $('#upgrade-log')
 		})
 
 		// setup routing

@@ -42,13 +42,18 @@ function locatorCheck($el) {
 		return 'this must be a 6-digit Maidenhead locator'
 }
 
+async function reload() {
+	await new Promise(r => setTimeout(r, 3000))
+	location.reload(true)
+}
+
 class Configuration {
 	constructor(props) {
 		this.handleMessage = this.handleMessage.bind(this)
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {version, status, hostname, ip, form, submit, bandhopper, callsign} = props
+		let {version, status, hostname, ip, form, submit, bandhopper, callsign, upgrade_software, upgrade_firmware, upgrade_dialog, upgrade_log} = props
 		this.version = version
 		this.status = status
 		this.hostname = hostname
@@ -57,6 +62,8 @@ class Configuration {
 		this.submit = submit
 		this.bandhopper = bandhopper
 		this.output_callsign = callsign
+		this.upgrade_dialog = upgrade_dialog
+		this.upgrade_log = upgrade_log
 
 		this.callsign = $(this.form[0].elements.callsign)
 		this.gps = $(this.form[0].elements.gps)
@@ -68,6 +75,9 @@ class Configuration {
 
 		this.socket = new WebSocket(`ws://${location.host}/config`)
 		this.socket.onmessage = this.handleMessage
+		const send = obj => {
+			this.socket.send(JSON.stringify(obj))
+		}
 
 		this.form.validator({
 			delay: 0,
@@ -90,7 +100,7 @@ class Configuration {
 				else if(d.name == 'bandhop' || d.name == 'tx_disable')
 					d.value = d.value.split(',')
 
-				this.socket.send(JSON.stringify(d))
+				send(d)
 			})
 			this.submit.prop('disabled', true)
 			this.output_callsign.val(this.callsign.val())
@@ -113,6 +123,13 @@ class Configuration {
 				this.setGPS()
 			else
 				this.unsetGPS()
+		})
+
+		upgrade_software.on('click', () => {
+			if(!confirm("Upgrade the software on your Pi to the latest version?"))
+				return;
+
+			send({'name': 'software-upgrade'})
 		})
 	}
 
@@ -183,6 +200,13 @@ class Configuration {
 		case 'tx_disable':
 			this.bandhopper.setTxDisable(data.value)
 			this.onSync()
+			break
+		case 'upgrade-log':
+			this.upgrade_dialog.modal({backdrop: 'static', keyboard: false})
+			this.upgrade_log.append(data.value + '\n')
+			break
+		case 'upgrade-success':
+			reload()
 			break
 		default:
 			console.error("unexpected config packet...")

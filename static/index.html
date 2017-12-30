@@ -14,6 +14,18 @@
     <p class="lead">We're loading all the data we need to work.</p>
    </div>
   </div>
+  <div id="upgrade-dialog" class="modal fade" tabindex="-1">
+   <div class="modal-dialog">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h4>Upgrade in progress...</h4>
+     </div>
+     <div class="modal-body">
+      <pre id="upgrade-log"></pre>
+     </div>
+    </div>
+   </div>
+  </div>
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
    <ul class="nav navbar-nav">
@@ -178,6 +190,18 @@ The "TX" button may be toggled to disable transmission on that band.
       </tr>
      </tbody>
     </table> 
+    <h2>Upgrades</h2>
+    <div class="btn-group btn-group-vertical">
+     <div class="btn-group">
+      <button id="upgrade-software" class="btn btn-danger">
+       <span class="glyphicon glyphicon-circle-arrow-up"></span> Upgrade Software
+      </button>
+     </div>
+     <div class="btn-group">
+      <button id="upgrade-firmware" class="btn btn-danger">
+       <span class="glyphicon glyphicon-circle-arrow-up"></span> Upgrade Firmware
+      </button>
+    </div>
    </div>
   </div></div>
  </body>

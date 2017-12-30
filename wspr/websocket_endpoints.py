@@ -10,22 +10,33 @@ class ConfigEndpoint(WebSocketHandler):
 			'value': value
 		})
 
-	def initialize(self, state=None):
-		self.state = state
+	def initialize(self, router=None):
+		self.router = router
 
 	def open(self):
 		log.debug('new client socket opened')
-		self.state.software_listeners.add(self)
-		for key, value in self.state.get_state().items():
+		self.router.software_listeners.add(self)
+		for key, value in self.router.get_state().items():
 			self.send_data(key, value)
 
 	def on_message(self, data):
 		message = load_json(data)
-		self.state.set_from_software(message['name'], message['value'])
+
+		if message['name'] == 'software-upgrade':
+			self.router.software_upgrade()
+			return
+
+		self.router.set_from_software(message['name'], message['value'])
 
 	def on_state_change(self, key, value):
 		self.send_data(key, value)
 
+	def on_upgrade_log(self, message):
+		self.send_data('upgrade-log', message)
+
+	def on_upgrade_success(self):
+		self.send_data('upgrade-success', '')
+
 	def on_close(self):
 		log.debug('client socket closed')
-		self.state.software_listeners.remove(self)
+		self.router.software_listeners.remove(self)

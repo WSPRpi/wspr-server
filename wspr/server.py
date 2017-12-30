@@ -7,21 +7,21 @@ from tornado.ioloop import IOLoop as IO, PeriodicCallback
 
 from wspr.web_endpoints import *
 from wspr.websocket_endpoints import *
-from wspr.shared_state import SharedState
+from wspr.router import Router
 from wspr.monitor import Monitor
 
 PORT = 8080
 
 def create_app():
-	state = SharedState()
-	monitor = Monitor(state)
-	state.hardware_listener = monitor
+	router = Router()
+	monitor = Monitor(router)
+	router.hardware_listener = monitor
 
 	return (WebApp([
 		(r'/', IndexEndpoint),
 		(r'/bundle.js', BundleEndpoint),
 		(r'/spots', SpotEndpoint),
-		(r'/config', ConfigEndpoint, {'state': state})
+		(r'/config', ConfigEndpoint, {'router': router})
 	]), monitor)
 
 def handle_interrupt(sig, frame):
@@ -45,7 +45,7 @@ def run():
 
 	log.debug('hardware monitor start...')
 	monitor.go()
-	PeriodicCallback(monitor.toggle_GPIO, 1000).start()
+	PeriodicCallback(monitor.heartbeat, 1000).start()
 	log.debug('monitor started')
 
 	log.debug('starting I/O loop...')

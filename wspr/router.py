@@ -1,6 +1,6 @@
 import logging as log
 
-class SharedState:
+class Router:
 	def __init__(self):
 		self._state = {
                         'hostname': 'localhost',
@@ -33,3 +33,15 @@ class SharedState:
 		self.hardware_listener.on_state_change(key, value)
 		for listener in self.software_listeners:
 			listener.on_state_change(key, value)
+
+	def software_upgrade(self):
+		log.debug('client requested software upgrade')
+		self.hardware_listener.software_upgrade()
+
+	def upgrade_log(self, message):
+		for listener in self.software_listeners:
+			listener.on_upgrade_log(message)
+
+	def upgrade_success(self):
+		for listener in self.software_listeners:
+			listener.on_upgrade_success()

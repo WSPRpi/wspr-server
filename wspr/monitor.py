@@ -2,10 +2,12 @@ import logging as log
 import os
 import serial
 import socket
+from time import sleep
 from subprocess import check_output
 from threading import Thread
 from tornado.ioloop import IOLoop as IO
 
+from wspr.upgrade import software_upgrade
 from wspr.wire_format import for_wire, from_wire
 if os.environ.get('WSPR_EMULATOR'):
 	from wspr.emulator import Serial, GPIO
@@ -14,8 +16,8 @@ else:
 	import RPi.GPIO as GPIO
 
 class Monitor:
-	def __init__(self, state):
-		self.state = state
+	def __init__(self, router):
+		self.router = router
 
 		log.debug('connecting to serial port...')
 		self.serial = Serial(
@@ -38,7 +40,8 @@ class Monitor:
 			'X': self.handle_tx_percentage,
 			'V': self.handle_version,
 			'S': self.handle_status,
-			'T': self.handle_timestamp
+			'T': self.handle_timestamp,
+			'U': self.handle_software_upgrade
 		}
 
 		self.startup_messages = [
@@ -62,10 +65,15 @@ class Monitor:
 			'bandhop': 'B'
 		}
 
-		self.GPIO_high = False
-		self.GPIO_port = 5
+		self.heartbeat_high = False
+		self.heartbeat_port = 5
+		self.reset_port = 17
+		self.program_port = 27
+
 		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(self.GPIO_port, GPIO.OUT)
+		GPIO.setup(self.heartbeat_port, GPIO.OUT)
+		GPIO.setup(self.reset_port, GPIO.OUT)
+		GPIO.setup(self.program_port, GPIO.OUT)
 
 		# populate hostname and IP for the frontend
 		self.handle_hostname(None)
@@ -75,7 +83,7 @@ class Monitor:
 		log.debug('retrieving hostname...')
 		hostname = socket.gethostname()
 		log.debug('hostname was %s', hostname)
-		self.state.set_from_hardware('hostname', hostname)
+		self.router.set_from_hardware('hostname', hostname)
 		return ('H', hostname)
 
 	def handle_ip(self, data):
@@ -85,37 +93,53 @@ class Monitor:
 			.strip()\
 			.split(' ')[0]
 		log.debug('IP was %s', ip)
-		self.state.set_from_hardware('ip', ip)
+		self.router.set_from_hardware('ip', ip)
 		return ('I', ip)
 
 	def handle_callsign(self, data):
-		self.state.set_from_hardware('callsign', data)
+		self.router.set_from_hardware('callsign', data)
 
 	def handle_locator(self, data):
-		self.state.set_from_hardware('locator', data)
+		self.router.set_from_hardware('locator', data)
 
 	def handle_power(self, data):
-		self.state.set_from_hardware('power', int(data))
+		self.router.set_from_hardware('power', int(data))
 
 	def handle_bandhop(self, data):
-		self.state.set_from_hardware('bandhop', data.split(','))
+		self.router.set_from_hardware('bandhop', data.split(','))
 
 	def handle_tx_disable(self, data):
-		self.state.set_from_hardware('tx_disable', data.split(','))
+		self.router.set_from_hardware('tx_disable', data.split(','))
 
 	def handle_tx_percentage(self, data):
-		self.state.set_from_hardware('tx_percentage', int(data))
+		self.router.set_from_hardware('tx_percentage', int(data))
 
 	def handle_version(self, data):
-		self.state.set_from_hardware('version', data)
+		self.router.set_from_hardware('version', data)
 
 	def handle_status(self, data):
-		self.state.set_from_hardware('status', data)
+		self.router.set_from_hardware('status', data)
 
 	def handle_timestamp(self, data):
 		log.debug('setting the system time to %s...', data)
 		check_output(['date', '-d', data])
 		log.debug('time set')
+
+	def handle_software_upgrade(self, data):
+		def upgrade_log(message):
+			log.info(message)
+			self.router.upgrade_log(message)
+
+		upgrade_log("upgrading software...")
+		self.reset(True)
+		if software_upgrade(log=upgrade_log):
+			upgrade_log("upgrade complete - restarting...")
+			self.router.upgrade_success()
+			self.reset(False)
+
+			log.debug("running exec()...")
+			os.execlp("wspr-server", "wspr-server")
+			# process replaced, job done
 
 	def send_data(self, command, rest):
 		formatted = for_wire(command, rest)
@@ -149,7 +173,7 @@ class Monitor:
 			IO.current().add_callback(self.route_command, data)
 
 	def go(self):
-		self.toggle_GPIO()
+		self.heartbeat()
 		Thread(target=self.manage_serial, daemon=True).start()
 
 	def on_state_change(self, key, value):
@@ -157,9 +181,20 @@ class Monitor:
 			value = ','.join(value)
 		self.send_data(self.state_commands[key], value)
 
-	def toggle_GPIO(self):
-		self.GPIO_high = not self.GPIO_high
+	def software_upgrade(self):
+		self.send_data('U', '')
+
+	def heartbeat(self):
+		self.heartbeat_high = not self.heartbeat_high
 		GPIO.output(
-			self.GPIO_port,
-			GPIO.HIGH if self.GPIO_high else GPIO.LOW
+			self.heartbeat_port,
+			GPIO.HIGH if self.heartbeat_high else GPIO.LOW
 		)
+
+	def reset(self, high):
+		log.debug("setting reset pin = %d", high)
+		GPIO.output(
+			self.reset_port,
+			GPIO.HIGH if high else GPIO.LOW
+		)
+		sleep(0.1) # make sure this propagates to hardware
