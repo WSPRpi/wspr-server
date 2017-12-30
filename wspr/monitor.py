@@ -7,7 +7,7 @@ from subprocess import check_output
 from threading import Thread
 from tornado.ioloop import IOLoop as IO
 
-from wspr.upgrade import software_upgrade
+from wspr.upgrade import software_upgrade, firmware_upgrade
 from wspr.wire_format import for_wire, from_wire
 if os.environ.get('WSPR_EMULATOR'):
 	from wspr.emulator import Serial, GPIO
@@ -41,7 +41,8 @@ class Monitor:
 			'V': self.handle_version,
 			'S': self.handle_status,
 			'T': self.handle_timestamp,
-			'U': self.handle_software_upgrade
+			'U': self.handle_software_upgrade,
+			'F': self.handle_firmware_upgrade
 		}
 
 		self.startup_messages = [
@@ -125,23 +126,52 @@ class Monitor:
 		check_output(['date', '-d', data])
 		log.debug('time set')
 
-	def handle_software_upgrade(self, data):
-		def upgrade_log(message):
-			log.info(message)
-			self.router.upgrade_log(message)
+	def upgrade_log(self, message):
+		log.debug(message)
+		self.router.upgrade_log(message)
 
-		upgrade_log("upgrading software...")
+	def restart(self):
+		log.debug("cleaning up...")
+		self.cleanup()
+		log.debug("running exec()...")
+		os.execlp("wspr-server", "wspr-server")
+		# process replaced, job done
+		
+	def handle_software_upgrade(self, data):
+		log.info("software upgrade start...")
+		self.upgrade_log("upgrading software...")
 		self.reset(True)
-		if software_upgrade(log=upgrade_log):
-			upgrade_log("upgrade complete - restarting...")
+		if software_upgrade(self.upgrade_log):
+			log.info("...software upgrade complete")
+			self.upgrade_log("upgrade complete - restarting...")
 			self.router.upgrade_success()
 			self.reset(False)
+			self.restart()
+		else:
+			log.info("...software upgrade failed")
+			self.upgrade_log("upgrade failed :-(")
 
-			log.debug("cleaning up...")
-			self.cleanup()
-			log.debug("running exec()...")
-			os.execlp("wspr-server", "wspr-server")
-			# process replaced, job done
+	def handle_firmware_upgrade(self, data):
+		log.info("firmware upgrade start...")
+		self.upgrade_log("upgrading firmware...")
+
+		# hardware program invocation
+		def program_mode():
+			self.upgrade_log("putting PIC into program mode...")
+			self.program(True)
+			self.reset(True)
+			self.reset(False)
+			self.program(False)
+			self.upgrade_log("...PIC in program mode")
+
+		if firmware_upgrade(self.upgrade_log, program_mode):
+			log.info("...software upgrade complete")
+			self.upgrade_log("upgrade complete - restarting...")
+			self.router.upgrade_success()
+			self.restart()
+		else:
+			log.info("...firmware upgrade failed")
+			self.upgrade_log("upgrade failed :-(")
 
 	def send_data(self, command, rest):
 		formatted = for_wire(command, rest)
@@ -186,6 +216,9 @@ class Monitor:
 	def software_upgrade(self):
 		self.send_data('U', '')
 
+	def firmware_upgrade(self):
+		self.send_data('F', '')
+
 	def heartbeat(self):
 		self.heartbeat_high = not self.heartbeat_high
 		GPIO.output(
@@ -199,7 +232,17 @@ class Monitor:
 			self.reset_port,
 			GPIO.HIGH if high else GPIO.LOW
 		)
-		sleep(0.1) # make sure this propagates to hardware
+		sleep(0.1)
+
+	def program(self, high):
+		if not high:
+			sleep(0.1)
+		log.debug("setting program pin = %d", high)
+		GPIO.output(
+			self.program_port,
+			GPIO.HIGH if high else GPIO.LOW
+		)
+		sleep(0.1)
 
 	def cleanup(self):
 		GPIO.cleanup()

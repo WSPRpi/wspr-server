@@ -25,6 +25,9 @@ class ConfigEndpoint(WebSocketHandler):
 		if message['name'] == 'software-upgrade':
 			self.router.software_upgrade()
 			return
+		elif message['name'] == 'firmware-upgrade':
+			self.router.firmware_upgrade()
+			return
 
 		self.router.set_from_software(message['name'], message['value'])
 

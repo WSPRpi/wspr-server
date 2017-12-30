@@ -131,6 +131,12 @@ class Configuration {
 
 			send({'name': 'software-upgrade'})
 		})
+		upgrade_firmware.on('click', () => {
+			if(!confirm("Flash the latest firmware onto your WSPR hardware?"))
+				return;
+
+			send({'name': 'firmware-upgrade'})
+		})
 	}
 
 	setGPS() {

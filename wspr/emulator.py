@@ -38,8 +38,8 @@ class Serial:
 		self.jitter()
 		command, rest = from_wire(data)
 
-		if command == 'U':
-			self.responses.put(('U', ''))
+		if command == 'U' or command == 'F':
+			self.responses.put((command, ''))
 
 class GPIO:
 	LOW = 0

@@ -38,6 +38,10 @@ class Router:
 		log.debug('client requested software upgrade')
 		self.hardware_listener.software_upgrade()
 
+	def firmware_upgrade(self):
+		log.debug('client requested firmware upgrade')
+		self.hardware_listener.firmware_upgrade()
+
 	def upgrade_log(self, message):
 		for listener in self.software_listeners:
 			listener.on_upgrade_log(message)
