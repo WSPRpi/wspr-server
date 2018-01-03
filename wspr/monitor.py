@@ -42,7 +42,8 @@ class Monitor:
 			'S': self.handle_status,
 			'T': self.handle_timestamp,
 			'U': self.handle_software_upgrade,
-			'F': self.handle_firmware_upgrade
+			'F': self.handle_firmware_upgrade,
+			'A': self.handle_heartbeat
 		}
 
 		self.startup_messages = [
@@ -165,7 +166,7 @@ class Monitor:
 			self.upgrade_log("...PIC in program mode")
 
 		if firmware_upgrade(self.upgrade_log, program_mode):
-			log.info("...software upgrade complete")
+			log.info("...firmware upgrade complete")
 			self.upgrade_log("upgrade complete - restarting...")
 			self.router.upgrade_success()
 			self.restart()
@@ -173,6 +174,9 @@ class Monitor:
 			log.info("...firmware upgrade failed")
 			self.upgrade_log("upgrade failed :-(")
 
+	def handle_heartbeat(self, data):
+		self.router.heartbeat()
+		
 	def send_data(self, command, rest):
 		formatted = for_wire(command, rest)
 		self.serial.write(formatted)

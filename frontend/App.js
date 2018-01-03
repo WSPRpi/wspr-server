@@ -51,7 +51,8 @@ class App {
 			upgrade_software: $('#upgrade-software'),
 			upgrade_firmware: $('#upgrade-firmware'),
 			upgrade_dialog: $('#upgrade-dialog'),
-			upgrade_log: $('#upgrade-log')
+			upgrade_log: $('#upgrade-log'),
+			lost_contact: $('#lost-contact')
 		})
 
 		// setup routing

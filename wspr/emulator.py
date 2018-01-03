@@ -1,5 +1,5 @@
 import logging as log
-from queue import Queue
+from queue import Queue, Empty
 from subprocess import check_output
 from time import sleep
 from random import randint
@@ -25,17 +25,16 @@ class Serial:
 		self.responses.put(('S', "EMULATED"))
 		self.responses.put(('T', get_time_as_string()))
 
-	def jitter(self):
-		sleep(0.025 * randint(0, 9))
-
 	def readline(self):
-		self.jitter()
-		command, rest = self.responses.get()
-		return for_wire(command, rest)
+		try:
+			command, rest = self.responses.get(timeout=1)
+			return for_wire(command, rest)
+		except Empty:
+			self.responses.put(('A', ''))
+			return self.readline()
 
 	def write(self, data):
 		data = data + b'\n' # actual serial library does this for us
-		self.jitter()
 		command, rest = from_wire(data)
 
 		if command == 'U' or command == 'F':

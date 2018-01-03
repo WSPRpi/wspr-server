@@ -40,6 +40,9 @@ class ConfigEndpoint(WebSocketHandler):
 	def on_upgrade_success(self):
 		self.send_data('upgrade-success', '')
 
+	def on_heartbeat(self):
+		self.send_data('heartbeat', '')
+
 	def on_close(self):
 		log.debug('client socket closed')
 		self.router.software_listeners.remove(self)

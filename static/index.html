@@ -26,6 +26,18 @@
     </div>
    </div>
   </div>
+  <div id="lost-contact" class="modal fade" tabindex="-1">
+   <div class="modal-dialog">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h4>Lost contact with hardware.</h4>
+     </div>
+     <div class="modal-body">
+      <p>The hardware attached to this server is not sending heartbeat messages. This usually indicates that it is powered off or otherwise non-functional. Refresh your browser once you believe the problem is solved.
+     </div>
+    </div>
+   </div>
+  </div>
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
    <ul class="nav navbar-nav">
@@ -181,7 +193,7 @@ The "TX" button may be toggled to disable transmission on that band.
        <td class="text-right"><code id="config-firmware-version"></code></td>
       </tr>
       <tr>
-       <th scope="row">Status Message</th>
+       <th scope="row">Hardware Status</th>
        <td class="text-right"><code id="config-status"></code></td>
       </tr>
       <tr>

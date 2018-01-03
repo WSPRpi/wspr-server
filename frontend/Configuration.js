@@ -1,5 +1,6 @@
 import $ from 'jquery'
 import toastr from 'toastr'
+import moment from 'moment'
 
 const packageData = require('../package.json')
 
@@ -55,7 +56,7 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {software_version, firmware_version, status, hostname, ip, form, submit, bandhopper, callsign, upgrade_software, upgrade_firmware, upgrade_dialog, upgrade_log} = props
+		let {software_version, firmware_version, status, hostname, ip, form, submit, bandhopper, callsign, upgrade_software, upgrade_firmware, upgrade_dialog, upgrade_log, lost_contact} = props
 		software_version.text(packageData.version)
 		this.version = firmware_version
 		this.status = status
@@ -67,6 +68,7 @@ class Configuration {
 		this.output_callsign = callsign
 		this.upgrade_dialog = upgrade_dialog
 		this.upgrade_log = upgrade_log
+		this.lost_contact = lost_contact
 
 		this.callsign = $(this.form[0].elements.callsign)
 		this.gps = $(this.form[0].elements.gps)
@@ -140,6 +142,20 @@ class Configuration {
 
 			send({'name': 'firmware-upgrade'})
 		})
+
+		this.lastHeartbeat = moment.utc()
+		setInterval(() => {
+			let now = moment.utc()
+			let ms = now.diff(this.lastHeartbeat, 'milliseconds')
+
+			if(ms > 2000) {
+				this.lost_contact.modal({
+					backdrop: 'static',
+					keyboard: false
+				})
+			}
+		}, 2000)
+		
 	}
 
 	setGPS() {
@@ -167,6 +183,8 @@ class Configuration {
 	}
 
 	handleMessage(event) {
+		this.lastHeartbeat = moment.utc()
+
 		let data = JSON.parse(event.data)
 		switch(data.name) {
 		case 'version':
@@ -216,6 +234,8 @@ class Configuration {
 			break
 		case 'upgrade-success':
 			reload()
+			break
+		case 'heartbeat':
 			break
 		default:
 			console.error("unexpected config packet...")

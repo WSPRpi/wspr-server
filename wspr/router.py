@@ -49,3 +49,7 @@ class Router:
 	def upgrade_success(self):
 		for listener in self.software_listeners:
 			listener.on_upgrade_success()
+
+	def heartbeat(self):
+		for listener in self.software_listeners:
+			listener.on_heartbeat()
