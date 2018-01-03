@@ -124,10 +124,14 @@ class Configuration {
 		this.form.find('select').on('change', enableForm)
 
 		this.gps.change(e => {
+			e.target.checked = true
+			alert('GPS mandatory for now.')
+			/* disabled for now - re-enabled when WUT desires
 			if(e.target.checked)
 				this.setGPS()
 			else
 				this.unsetGPS()
+			*/
 		})
 
 		upgrade_software.on('click', () => {
