@@ -170,14 +170,6 @@ class Configuration {
 	}
 
 	onSync() {
-		toastr.info(
-			'WSPR settings are up-to-date.',
-			'New Data Received',
-			{
-				preventDuplicates: true,
-				positionClass: 'toast-bottom-right'
-			}
-		)
 		this.form.validator('validate')
 		this.submit.prop('disabled', true)
 	}
