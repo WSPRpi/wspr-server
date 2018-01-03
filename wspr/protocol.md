@@ -21,3 +21,4 @@ The commands are as follows. Where it makes sense, the command data may be empty
 * U to indicate that the Pi is about to upgrade itself, contains no data, the response is "U;\n" to indicate that the PIC has shutdown and is ready to be reset
 * F to indicate firmware upgrade is about to happen, contains no data. Response is "F;\n" when the PIC has shutdown and is ready to be reset.
 * D for Disable TX. A comma-separated list of single binary digits. 12 values, one for each band. '0' to allow TX, '1' to disable TX
+* A for a heartbeat indicator to indicate that the PIC is running and not in an error state
