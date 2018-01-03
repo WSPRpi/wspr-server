@@ -16,6 +16,7 @@ class Serial:
 		self.responses.put(('I', ''))
 		self.responses.put(('H', ''))
 		self.responses.put(('C', 'M0WUT'))
+		self.responses.put(('G', 'AA00aa'))
 		self.responses.put(('L', 'GPS'))
 		self.responses.put(('P', '10'))
 		self.responses.put(('B', ','.join(['2'] * 24)))

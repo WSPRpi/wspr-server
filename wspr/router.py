@@ -6,6 +6,7 @@ class Router:
                         'hostname': 'localhost',
                         'ip': '0.0.0.0',
 			'callsign': 'M0WUT',
+			'gps': 'AA00aa',
 			'locator': 'GPS',
 			'power': 10,
 			'bandhop': ['0'] * 24,

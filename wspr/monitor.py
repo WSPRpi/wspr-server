@@ -33,6 +33,7 @@ class Monitor:
 			'H': self.handle_hostname,
 			'I': self.handle_ip,
 			'C': self.handle_callsign,
+			'G': self.handle_gps,
 			'L': self.handle_locator,
 			'P': self.handle_power,
 			'B': self.handle_bandhop,
@@ -48,6 +49,7 @@ class Monitor:
 
 		self.startup_messages = [
 			('C', ''),
+			('G', ''),
 			('L', ''),
 			('P', ''),
 			('B', ''),
@@ -100,6 +102,9 @@ class Monitor:
 
 	def handle_callsign(self, data):
 		self.router.set_from_hardware('callsign', data)
+
+	def handle_gps(self, data):
+		self.router.set_from_hardware('gps', data)
 
 	def handle_locator(self, data):
 		self.router.set_from_hardware('locator', data)

@@ -56,12 +56,13 @@ class Configuration {
 		this.setGPS = this.setGPS.bind(this)
 		this.unsetGPS = this.unsetGPS.bind(this)
 
-		let {software_version, firmware_version, status, hostname, ip, form, submit, bandhopper, callsign, upgrade_software, upgrade_firmware, upgrade_dialog, upgrade_log, lost_contact} = props
+		let {software_version, firmware_version, status, hostname, ip, gps, form, submit, bandhopper, callsign, upgrade_software, upgrade_firmware, upgrade_dialog, upgrade_log, lost_contact} = props
 		software_version.text(packageData.version)
 		this.version = firmware_version
 		this.status = status
 		this.hostname = hostname
 		this.ip = ip
+		this.gps_locator = gps
 		this.form = form
 		this.submit = submit
 		this.bandhopper = bandhopper
@@ -194,6 +195,9 @@ class Configuration {
 			break
 		case 'ip':
 			this.ip.text(data.value)
+			break
+		case 'gps':
+			this.gps_locator.text(data.value)
 			break
 		case 'callsign':
 			this.callsign.val(data.value)

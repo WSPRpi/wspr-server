@@ -44,6 +44,7 @@ class App {
 			status: $('#config-status'),
 			hostname: $('#config-hostname'),
 			ip: $('#config-ip'),
+			gps: $('#config-gps'),
 			form: $('#config-form'),
 			submit: $('#config-submit'),
 			bandhopper: this.bandhopper,
