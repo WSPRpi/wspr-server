@@ -39,7 +39,8 @@ class App {
 			txdisable: $('#config-tx_disable')
 		})
 		this.config = new Configuration({
-			version: $('#config-version'),
+			software_version: $('#config-software-version'),
+			firmware_version: $('#config-firmware-version'),
 			status: $('#config-status'),
 			hostname: $('#config-hostname'),
 			ip: $('#config-ip'),
