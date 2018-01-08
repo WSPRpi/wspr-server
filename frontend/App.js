@@ -89,34 +89,51 @@ class App {
 		$('#loading-banner').hide()
 	}
 
-	fetchData(callsign1, callsign2) {
+	async scrape(params) {
+		let endpoint = '/spots?' + $.param(params)
+		let rep = await fetch(endpoint)
+		let html = await rep.text()
+
+		let doc = document.implementation.createHTMLDocument('scrape')
+		doc.documentElement.innerHTML = html
+		return $("table tr:gt(0)", doc).map(function() {
+			let cells = $("td", this).map(function() {
+				return $(this).text().trim()
+			}).get()
+			return {
+				'timestamp': cells[0],
+				'callsign': cells[1],
+				'mhz': cells[2],
+				'snr': cells[3],
+				'drift': cells[4],
+				'grid': cells[5],
+				'power': cells[6],
+				'reporter': cells[7],
+				'reporter_grid': cells[8],
+				'km': cells[9]
+			}
+		}).get()
+	}
+
+	async scrapeAll(callsign1, callsign2) {
+		let calls1 = (callsign1.trim() === '') ? [] :this.scrape({
+			call: callsign1,
+			reporter: callsign1
+		})
+		let calls2 = (callsign2.trim() === '') ? [] : this.scrape({
+			call: callsign2,
+			reporter: callsign2
+		})
+		return (await calls1).concat(await calls2)
+	}
+
+	async fetchData(callsign1, callsign2) {
 		$('#callsign-submit').prop('disabled', true)
 		this.callsign1 = callsign1
 		this.callsign2 = callsign2
-		var endpoint = '/spots?' + $.param({
-			callsign1,
-			callsign2
-		});
 
-		(async (ref) => {
-                        try {
-				let headers = {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json'
-				}
-                                let response = await fetch(endpoint, {
-					headers: headers,
-					method: 'GET'
-				})
-                                let data = await response.json()
-				this.spots = data.spots
-                        } catch(e) {
-                                console.error("failed to retrieve spots: " + e)
-                        }
-			finally {
-				this.update()
-			}
-		})(this)
+		this.spots = await this.scrapeAll(callsign1, callsign2)
+		this.update()
 	}
 
 	update() {

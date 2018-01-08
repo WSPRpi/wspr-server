@@ -1,4 +1,3 @@
-import moment from 'moment'
 import $ from 'jquery'
 
 class SpotTable {
@@ -11,16 +10,11 @@ class SpotTable {
 
 	update(data) {
 		let {spots} = data
-		let renderTime = (time => moment
-			.unix(time)
-			.utc()
-			.format('YYYY-MM-DD HH:mm')
-		)
 
 		let html = spots
 			.map(spot => (`
 <tr>
- <td>${renderTime(spot.timestamp)}</td>
+ <td>${spot.timestamp}</td>
  <td>${spot.callsign}</td>
  <td>${spot.mhz}</td>
  <td>${spot.snr}</td>

@@ -1,11 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
 import logging as log
+from tornado.web import RequestHandler
 from tornado.gen import coroutine
-from tornado.escape import json_encode
-from tornado.web import RequestHandler, StaticFileHandler
 from pkg_resources import resource_string
-
-from .scraper import scrape_spots
+from re import search as regex
+from requests import Session
 
 class IndexEndpoint(RequestHandler):
 	def get(self):
@@ -17,30 +16,43 @@ class BundleEndpoint(RequestHandler):
 		self.write(resource_string('static', 'bundle.js'))
 		log.debug('frontend js retrieved')
 
-@coroutine
-def collect_spots(callsign1, callsign2):
-	log.debug('collecting spots...')
-	with ThreadPoolExecutor(4) as executor:
-		jobs = []
-		if callsign1:
-			jobs.append(executor.submit(scrape_spots, callsign1, ''))
-			jobs.append(executor.submit(scrape_spots, '', callsign1))
-		if callsign2:
-			jobs.append(executor.submit(scrape_spots, callsign2, ''))
-			jobs.append(executor.submit(scrape_spots, '', callsign2))
-		results = yield jobs
-		log.debug('spots collected')
-		return sum(results, [])
+class WebSpotEndpoint(RequestHandler):
+	def retrieve(self, params):
+		log.debug('beginning web request sequence...')
 
-class SpotEndpoint(RequestHandler):
+		url = 'http://wsprnet.org/drupal/wsprnet/spotquery'
+		session = Session()
+		log.debug('retrieving form ID...')
+		content = session.get(url).text
+		build_token = regex(
+			r'"form_build_id"\s*value="([^"]+)"',
+			content
+		).group(1)
+		log.debug('got form ID: {}'.format(build_token))
+
+		params['form_build_id'] = build_token
+		log.debug('downloading spot page...')
+		html = session.post(url, data=params).text
+		log.debug('...downloaded spot page.')
+		return html
+
 	@coroutine
 	def get(self):
-		log.debug('spots queried')
-		callsign1 = self.get_argument('callsign1', default='')
-		callsign2 = self.get_argument('callsign2', default='')
+		params = {
+			'band': 'All',
+			'count': '1000',
+			'call': '',
+			'reporter': '',
+			'timelimit': '3600',
+			'sortby': 'date',
+			'sortrev': '1',
+			'op': 'Update',
+			'form_id': 'wsprnet_spotquery_form'
+		}
+		for k in self.request.arguments:
+			params[k] = self.get_argument(k)
+		log.debug('retrieving web spots with params: {}'.format(params))
 
-		spots = yield collect_spots(callsign1, callsign2)
-		key = lambda x: (x['timestamp'], x['callsign'], x['reporter'])
-		spots = list({key(x): x for x in spots}.values())
-		spots.sort(key=lambda x: x['timestamp'], reverse=True)
-		self.write(json_encode({'spots': spots}))
+		with ThreadPoolExecutor(1) as executor:
+			html = yield executor.submit(self.retrieve, params)
+		self.write(html)

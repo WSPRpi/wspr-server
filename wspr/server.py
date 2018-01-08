@@ -23,7 +23,7 @@ def create_app():
 	return WebApp([
 		(r'/', IndexEndpoint),
 		(r'/bundle.js', BundleEndpoint),
-		(r'/spots', SpotEndpoint),
+		(r'/spots', WebSpotEndpoint),
 		(r'/config', ConfigEndpoint, {'router': router})
 	])
 
