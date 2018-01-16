@@ -153,13 +153,13 @@ class Configuration {
 			let now = moment.utc()
 			let ms = now.diff(this.lastHeartbeat, 'milliseconds')
 
-			if(ms > 2000) {
+			if(ms > 5000) {
 				this.lost_contact.modal({
 					backdrop: 'static',
 					keyboard: false
 				})
 			}
-		}, 2000)
+		}, 5000)
 		
 	}
 
