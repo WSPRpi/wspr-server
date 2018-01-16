@@ -94,7 +94,7 @@ class App {
 	}
 
 	async scrape(params) {
-		let endpoint = '/spots?' + $.param(params)
+		let endpoint = '/proxy?' + $.param(params)
 		let rep = await fetch(endpoint)
 		let html = await rep.text()
 
@@ -119,18 +119,45 @@ class App {
 		}).get()
 	}
 
-	async scrapeAll(callsign1, callsign2, extra) {
-		let calls1 = (callsign1.trim() === '') ? [] :this.scrape({
+	async fetchLocal(params) {
+		let endpoint = '/spots?' + $.param(params)
+		let rep = await fetch(endpoint)
+		let spots = (await rep.json())['spots']
+
+		spots.forEach(spot => {
+			spot['timestamp'] = moment.utc(
+				spot['timestamp'],
+				"YYMMDDHH:mm"
+			)
+			let [lat1, lon1] = Maidenhead.toLatLon(spot['grid'])
+			let [lat2, lon2] = Maidenhead.toLatLon(spot['reporter_grid'])
+			let km = new Maidenhead(lat1, lon1)
+				.distanceTo(new Maidenhead(lat2, lon2))
+			spot['km'] = Math.round(km)
+		})
+		return spots
+	}
+
+	async fetchAll(callsign1, callsign2, extra) {
+		let webcalls1 = (callsign1.trim() === '') ? [] :this.scrape({
 			call: callsign1,
 			reporter: callsign1,
 			...extra //ES7 being sassy
 		})
-		let calls2 = (callsign2.trim() === '') ? [] : this.scrape({
+		let webcalls2 = (callsign2.trim() === '') ? [] : this.scrape({
 			call: callsign2,
 			reporter: callsign2,
 			...extra
 		})
-		return (await calls1).concat(await calls2)
+		let localcalls = await this.fetchLocal({
+			callsign1: callsign1,
+			callsign2: callsign2, // local server will do both ways
+			...extra
+		})
+		console.log(localcalls)
+		return (await webcalls1)
+			.concat(await webcalls2)
+			.concat(await localcalls)
 	}
 
 	async fetchData(callsign1, callsign2, extra) {
@@ -138,7 +165,7 @@ class App {
 		this.callsign1 = callsign1
 		this.callsign2 = callsign2
 
-		let spots = await this.scrapeAll(callsign1, callsign2, extra)
+		let spots = await this.fetchAll(callsign1, callsign2, extra)
 		if(extra.sortby == 'date') {
 			spots.sort((a, b) => {
 				if(a.timestamp.isAfter(b.timestamp)) {return 1}

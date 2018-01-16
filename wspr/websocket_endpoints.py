@@ -15,7 +15,7 @@ class ConfigEndpoint(WebSocketHandler):
 
 	def open(self):
 		log.debug('new client socket opened')
-		self.router.software_listeners.add(self)
+		self.router.register_software(self)
 		for key, value in self.router.get_state().items():
 			self.send_data(key, value)
 
@@ -45,4 +45,4 @@ class ConfigEndpoint(WebSocketHandler):
 
 	def on_close(self):
 		log.debug('client socket closed')
-		self.router.software_listeners.remove(self)
+		self.router.detach_software(self)

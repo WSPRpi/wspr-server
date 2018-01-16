@@ -215,17 +215,62 @@ class Monitor:
 			data = self.serial.readline()
 			IO.current().add_callback(self.route_command, data)
 
+	def upload_rx(self, output, callsign, locator):
+		log.info('uploading RX batch...')
+		params = {
+			'allmept': output,
+			'call': callsign,
+			'grid': locator
+		}
+		try:
+			req = requests.post(
+				'http://wsprnet.org/meptspots.php',
+				params=params
+			)
+			log.debug(req.text)
+			log.info('...uploaded.')
+		except:
+			log.exception('upload failed')
+		
+	def parse_rx(self, output, callsign, locator):
+		tabular = [
+			line.split()
+			for line in output.strip().split('\n')
+		]
+		return [
+			{
+				'timestamp': '{}{}'.format(row[0], row[1]),
+				'snr': int(row[3]),
+				'mhz': float(row[5]),
+				'callsign': row[6],
+				'grid': row[7],
+				'power': 10 ** (float(row[8]) / 10 - 3),
+				'drift': int(row[9]),
+				'reporter': callsign,
+				'reporter_grid': locator,
+				'km': None
+			}
+			for row in tabular
+		]
+
 	def manage_rx(self):
-		sleep(10) # make sure everything's populated first
+		sleep(1) # make sure everything's populated first
 		log.debug('starting RX loop...')
 
 		while True:
 			now = datetime.utcnow()
 
-			callsign = self.router.get_state()['callsign']
-			locator = self.router.get_state()['locator']
+			pause = 60 if now.minute % 2 == 0 else 0
+			pause += 60 - now.second - 1
+			log.debug('RX sleeping for %d seconds...', pause)
+			#sleep(pause)
+			sleep(1)
+
+			state = self.router.get_state()
+			callsign = state['callsign']
+			locator = state['locator']
 			if locator == 'GPS':
-				locator = self.router.get_state()['gps']
+				locator = state['gps']
 			mhz = {
 				'0': '0.1375',
 				'1': '0.4757',
@@ -239,38 +284,28 @@ class Monitor:
 				'9': '21.0961',
 				'A': '24.9261',
 				'B': '28.1261'
-			}[self.router.get_state()['bandhop'][now.hour]]
+			}[state['bandhop'][datetime.utcnow().hour]]
+
 			command = 'arecord -B 2000000 -f S16_LE -r 48000 --duration=114 -q -D hw:0,0 -c 2 -t wav - | sox -t wav - -c 1 -r 12000 -t wav - | wsprd -wf "{}" /dev/stdin'.format(mhz)
 
-			pause = 60 if now.minute % 2 == 0 else 0
-			pause += 60 - now.second - 1
-			log.debug('RX sleeping for %d seconds...', pause)
-			sleep(pause)
-
-			log.debug('starting RX cycle...')
+			log.info('starting RX cycle...')
 			log.debug(command)
-			output = check_output(command, shell=True)
+			output = print(command) #check_output(command, shell=True)
 			if os.environ.get('WSPR_EMULATOR'):
+				# test data cribbed from rx repository
 				output = '''
-001203 1430 5 -18 -2.92  14.0970533  EA4DTE IN80 27          2     1    0
-001203 1430 3 -16 -3.01  14.0970896  TA2AEG KN40 40          2     1    0
-001203 1430 2 -23 -4.11  14.0971325  OK2TRN JN88 23          2  3865    0
+180116 1430 5 -18 -2.92  14.0970533  EA4DTE IN80 27          2     1    0
+180116 1430 3 -16 -3.01  14.0970896  TA2AEG KN40 40          2     1    0
+180116 1430 2 -23 -4.11  14.0971325  OK2TRN JN88 23          2  3865    0
 '''
+			log.info('...RX cycle finished')
+			Thread(target=self.upload_rx, args=(output, callsign, locator), daemon=True).start()
 
-			log.debug('RX cycle finished, uploading...')
-			params = {
-				'allmept': output,
-				'call': callsign,
-				'grid': locator
-			}
-			try:
-				req = requests.post(
-					'http://wsprnet.org/meptspots.php',
-					params=params
-				)
-				print(req.text)
-			except:
-				log.exception('upload failed')
+			log.debug('parsing spots...')
+			spots = self.parse_rx(output, callsign, locator)
+			self.router.add_spots(spots)
+			log.debug('...%d spots parsed', len(spots))
+			sleep(1000000)
 
 	def go(self):
 		self.heartbeat()

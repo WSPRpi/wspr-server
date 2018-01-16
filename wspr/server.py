@@ -18,12 +18,13 @@ def create_app():
 
 	router = Router()
 	monitor = Monitor(router)
-	router.hardware_listener = monitor
+	router.hardware_agent = monitor
 
 	return WebApp([
 		(r'/', IndexEndpoint),
 		(r'/bundle.js', BundleEndpoint),
-		(r'/spots', WebSpotEndpoint),
+		(r'/spots', SpotEndpoint, {'router': router}),
+		(r'/proxy', WebSpotEndpoint),
 		(r'/config', ConfigEndpoint, {'router': router})
 	])
 

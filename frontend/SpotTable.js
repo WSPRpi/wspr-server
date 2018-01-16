@@ -20,7 +20,7 @@ class SpotTable {
  <td>${spot.snr}</td>
  <td>${spot.drift}</td>
  <td>${spot.grid}</td>
- <td>${spot.power}</td>
+ <td>${spot.power.toFixed([1])}</td>
  <td>${spot.reporter}</td>
  <td>${spot.reporter_grid}</td>
  <td>${spot.km}</td>
