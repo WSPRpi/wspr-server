@@ -8,6 +8,7 @@ import Bandhop from './Bandhop'
 import Maidenhead from 'maidenhead'
 import $ from 'jquery'
 import HashRouter from 'hash-router'
+import moment from 'moment'
 
 class App {
 	constructor() {
@@ -22,6 +23,9 @@ class App {
 			nickname: $('#nickname'),
 			input2: $('#callsign-input2'),
 			form: $('#callsigns-form'),
+			extra_button: $('#callsign-extra-button'),
+			extra_dialog: $('#callsign-extra-dialog'),
+			extra_form: $('#callsign-extra-form'),
 			onUpdate: this.fetchData
 		})
 		this.table = new SpotTable({
@@ -101,38 +105,81 @@ class App {
 				return $(this).text().trim()
 			}).get()
 			return {
-				'timestamp': cells[0],
+				'timestamp': moment.utc(cells[0], "YYYY-MM-DD HH:mm"),
 				'callsign': cells[1],
-				'mhz': cells[2],
-				'snr': cells[3],
-				'drift': cells[4],
+				'mhz': parseFloat(cells[2]),
+				'snr': parseInt(cells[3]),
+				'drift': parseInt(cells[4]),
 				'grid': cells[5],
-				'power': cells[6],
+				'power': parseFloat(cells[6]),
 				'reporter': cells[7],
 				'reporter_grid': cells[8],
-				'km': cells[9]
+				'km': parseInt(cells[9])
 			}
 		}).get()
 	}
 
-	async scrapeAll(callsign1, callsign2) {
+	async scrapeAll(callsign1, callsign2, extra) {
 		let calls1 = (callsign1.trim() === '') ? [] :this.scrape({
 			call: callsign1,
-			reporter: callsign1
+			reporter: callsign1,
+			...extra //ES7 being sassy
 		})
 		let calls2 = (callsign2.trim() === '') ? [] : this.scrape({
 			call: callsign2,
-			reporter: callsign2
+			reporter: callsign2,
+			...extra
 		})
 		return (await calls1).concat(await calls2)
 	}
 
-	async fetchData(callsign1, callsign2) {
+	async fetchData(callsign1, callsign2, extra) {
 		$('#callsign-submit').prop('disabled', true)
 		this.callsign1 = callsign1
 		this.callsign2 = callsign2
 
-		this.spots = await this.scrapeAll(callsign1, callsign2)
+		let spots = await this.scrapeAll(callsign1, callsign2, extra)
+		if(extra.sortby == 'date') {
+			spots.sort((a, b) => {
+				if(a.timestamp.isAfter(b.timestamp)) {return 1}
+				else if(a.timestamp.isBefore(b.timestamp)) {return -1}
+				return 0
+			})
+		}
+		else if(extra.sortby == 'distance') {
+			spots.sort((a, b) => {
+				if(a.km > b.km) {return 1}
+				else if(a.km < b.km) {return -1}
+				return 0
+			})
+		}
+		if('sortrev' in extra) {
+			spots.reverse()
+		}
+		function equal(a, b) {
+			return (
+				a.timestamp.isSame(b.timestamp) &&
+				a.call === b.call &&
+				a.mhz === b.mhz &&
+				a.snr === b.snr &&
+				a.drift === b.drift &&
+				a.grid === b.grid &&
+				a.power === b.power &&
+				a.reporter === b.reporter &&
+				a.reporter_grid === b.reporter_grid &&
+				a.km === b.km
+			)
+		}
+		// de-duplicate spots
+		// O(n ^ 2) - so kill me, n = 2000
+		for(var i = 0; i < spots.length; ++i) {
+			for(var j = i + 1; j < spots.length; ++j) {
+				if(equal(spots[i], spots[j])) {
+					spots.splice(i + 1, 1)
+				}
+			}
+		}
+		this.spots = spots
 		this.update()
 	}
 

@@ -38,6 +38,78 @@
     </div>
    </div>
   </div>
+  <div id="callsign-extra-dialog" class="modal fade" tabindex="-1">
+   <div class="modal-dialog">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h4>Spot Query Settings</h4>
+     </div>
+     <div class="modal-body">
+      <form id="callsign-extra-form">
+       <div class="form-group">
+        <label for="callsign-extra-band">Band</label>
+        <select name="band" id="callsign-extra-band" class="form-control">
+         <option value="All">All Bands</option>
+         <option value="-1">LF</option>
+         <option value="0">MF</option>
+         <option value="1">160m</option>
+         <option value="3">80m</option>
+         <option value="5">60m</option>
+         <option value="7">40m</option>
+         <option value="10">30m</option>
+         <option value="14">20m</option>
+         <option value="18">17m</option>
+         <option value="21">15m</option>
+         <option value="24">12m</option>
+         <option value="28">10m</option>
+         <option value="50">6m</option>
+         <option value="70">4m</option>
+         <option value="144">2m</option>
+         <option value="432">70cm</option>
+         <option value="1296">23cm</option>
+        </select>
+       </div>
+       <div class="form-group">
+	<label for="callsign-extra-timelimit">Time Limit</label>
+	<select name="timelimit" id="callsign-extra-timelimit" class="form-control">
+	 <option value="1209600">2 Weeks</option>
+	 <option value="604800">1 Week</option>
+	 <option value="86400">24 Hours</option>
+	 <option value="43200">12 Hours</option>
+	 <option value="3600">1 Hour</option>
+	</select>
+       </div>
+       <div class="form-group">
+	<label for="callsign-extra-sortby">Sort Entries By</label>
+	<select name="sortby" id="callsign-extra-sortby" class="form-control">
+	 <option value="date">Timestamp</option>
+	 <option value="distance">Distance</option>
+	</select>
+       </div>
+       <div class="form-group">
+        <label for="callsign-extra-sortrev">Reverse Order</label>
+	<div class="checkbox" id="callsign-extra-sortrev">
+ 	 <label>
+	  <input name="sortrev" type="checkbox" checked="checked">
+          Reverse ordering of results.
+	 </label>
+        </div>
+       </div>
+       <div class="form-group">
+        <label for="callsign-extra-unique">Unique</label>
+	<div class="checkbox" id="callsign-extra-unique">
+ 	 <label>
+	  <input name="unique" type="checkbox">
+          Only report unique callsign/reporter combinations.
+	 </label>
+        </div>
+       </div>
+       <button type="submit" class="btn btn-primary">OK</button>
+      </form>
+     </div>
+    </div>
+   </div>
+  </div>
   <nav class="navbar navbar-default">
    <div class="navbar-brand">WSPR</div>
    <ul class="nav navbar-nav">
@@ -67,6 +139,9 @@
      class="form-control"
      placeholder="Callsign #2"
     >
+    <button type="button" id="callsign-extra-button" class="btn btn-default">
+     <span class="glyphicon glyphicon-cog"></span>
+    </button>
     <button
      id="callsign-submit"
      type="submit"

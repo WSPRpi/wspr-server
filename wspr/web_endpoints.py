@@ -39,13 +39,7 @@ class WebSpotEndpoint(RequestHandler):
 	@coroutine
 	def get(self):
 		params = {
-			'band': 'All',
 			'count': '1000',
-			'call': '',
-			'reporter': '',
-			'timelimit': '3600',
-			'sortby': 'date',
-			'sortrev': '1',
 			'op': 'Update',
 			'form_id': 'wsprnet_spotquery_form'
 		}

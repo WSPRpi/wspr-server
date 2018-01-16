@@ -14,7 +14,7 @@ class SpotTable {
 		let html = spots
 			.map(spot => (`
 <tr>
- <td>${spot.timestamp}</td>
+ <td>${spot.timestamp.format('YYYY-MM-DD HH:mm')}</td>
  <td>${spot.callsign}</td>
  <td>${spot.mhz}</td>
  <td>${spot.snr}</td>
