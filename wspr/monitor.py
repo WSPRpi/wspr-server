@@ -2,10 +2,12 @@ import logging as log
 import os
 import serial
 import socket
+from datetime import datetime
 from time import sleep
 from subprocess import check_output
 from threading import Thread
 from tornado.ioloop import IOLoop as IO
+import requests
 
 from wspr.upgrade import software_upgrade, firmware_upgrade
 from wspr.wire_format import for_wire, from_wire
@@ -213,9 +215,67 @@ class Monitor:
 			data = self.serial.readline()
 			IO.current().add_callback(self.route_command, data)
 
+	def manage_rx(self):
+		sleep(10) # make sure everything's populated first
+		log.debug('starting RX loop...')
+
+		while True:
+			now = datetime.utcnow()
+
+			callsign = self.router.get_state()['callsign']
+			locator = self.router.get_state()['locator']
+			if locator == 'GPS':
+				locator = self.router.get_state()['gps']
+			mhz = {
+				'0': '0.1375',
+				'1': '0.4757',
+				'2': '1.8381',
+				'3': '3.5941',
+				'4': '5.3662',
+				'5': '7.0401',
+				'6': '10.1402',
+				'7': '14.0971',
+				'8': '18.1061',
+				'9': '21.0961',
+				'A': '24.9261',
+				'B': '28.1261'
+			}[self.router.get_state()['bandhop'][now.hour]]
+			command = 'arecord -B 2000000 -f S16_LE -r 48000 --duration=114 -q -D hw:0,0 -c 2 -t wav - | sox -t wav - -c 1 -r 12000 -t wav - | wsprd -wf "{}" /dev/stdin'.format(mhz)
+
+			pause = 60 if now.minute % 2 == 0 else 0
+			pause += 60 - now.second - 1
+			log.debug('RX sleeping for %d seconds...', pause)
+			sleep(pause)
+
+			log.debug('starting RX cycle...')
+			log.debug(command)
+			output = check_output(command, shell=True)
+			if os.environ.get('WSPR_EMULATOR'):
+				output = '''
+001203 1430 5 -18 -2.92  14.0970533  EA4DTE IN80 27          2     1    0
+001203 1430 3 -16 -3.01  14.0970896  TA2AEG KN40 40          2     1    0
+001203 1430 2 -23 -4.11  14.0971325  OK2TRN JN88 23          2  3865    0
+'''
+
+			log.debug('RX cycle finished, uploading...')
+			params = {
+				'allmept': output,
+				'call': callsign,
+				'grid': locator
+			}
+			try:
+				req = requests.post(
+					'http://wsprnet.org/meptspots.php',
+					params=params
+				)
+				print(req.text)
+			except:
+				log.exception('upload failed')
+
 	def go(self):
 		self.heartbeat()
 		Thread(target=self.manage_serial, daemon=True).start()
+		Thread(target=self.manage_rx, daemon=True).start()
 
 	def on_state_change(self, key, value):
 		if key in {'bandhop', 'tx_disable'}:

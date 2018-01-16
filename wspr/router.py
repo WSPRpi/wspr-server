@@ -5,7 +5,7 @@ class Router:
 		self._state = {
                         'hostname': 'localhost',
                         'ip': '0.0.0.0',
-			'callsign': 'M0WUT',
+			'callsign': '',
 			'gps': 'AA00aa',
 			'locator': 'GPS',
 			'power': 10,
