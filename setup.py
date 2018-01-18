@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name="wspr-server",
-	version="0.1.4",
+	version="0.1.5",
 	url="https://github.com/wsprpi/wspr-software",
 	author="Michael Rawson",
 	author_email="michael@rawsons.uk",
