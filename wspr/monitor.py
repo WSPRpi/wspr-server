@@ -254,7 +254,7 @@ class Monitor:
 		]
 
 	def manage_rx(self):
-		sleep(1) # make sure everything's populated first
+		sleep(5) # make sure everything's populated first
 		log.debug('starting RX loop...')
 
 		while True:
@@ -263,8 +263,7 @@ class Monitor:
 			pause = 60 if now.minute % 2 == 0 else 0
 			pause += 60 - now.second - 1
 			log.debug('RX sleeping for %d seconds...', pause)
-			#sleep(pause)
-			sleep(1)
+			sleep(pause)
 
 			state = self.router.get_state()
 			callsign = state['callsign']
@@ -290,7 +289,7 @@ class Monitor:
 
 			log.info('starting RX cycle...')
 			log.debug(command)
-			output = print(command) #check_output(command, shell=True)
+			output = check_output(command, shell=True)
 			if os.environ.get('WSPR_EMULATOR'):
 				# test data cribbed from rx repository
 				output = '''
@@ -305,12 +304,12 @@ class Monitor:
 			spots = self.parse_rx(output, callsign, locator)
 			self.router.add_spots(spots)
 			log.debug('...%d spots parsed', len(spots))
-			sleep(1000000)
 
 	def go(self):
 		self.heartbeat()
 		Thread(target=self.manage_serial, daemon=True).start()
-		Thread(target=self.manage_rx, daemon=True).start()
+		if not os.environ.get('WSPR_DISABLE_RX'):
+			Thread(target=self.manage_rx, daemon=True).start()
 
 	def on_state_change(self, key, value):
 		if key in {'bandhop', 'tx_disable'}:

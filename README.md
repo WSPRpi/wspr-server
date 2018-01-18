@@ -7,6 +7,7 @@ This repository contains a software frontend for the WSPRPi hardware by M0WUT.
 The software takes no command-line arguments, but responds to environment variables as follows:
 * Setting `WSPR_EMULATOR` to be non-blank results in the software talking to an emulated hardware device without touching real hardware. This is useful for developing and sanity checks.
 * Setting `WSPR_DEBUG` non-blank produces more verbose logging output.
+* If `WSPR_DISABLE_RX` is set, the software will not collect/upload received spots.
 
 ## Prerequisites
 The software is built and runs with Python 3.5.
