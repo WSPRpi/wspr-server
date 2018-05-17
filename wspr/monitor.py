@@ -19,6 +19,7 @@ else:
 
 class Monitor:
 	def __init__(self, router):
+		self.loop = IO.current()
 		self.router = router
 
 		log.debug('connecting to serial port...')
@@ -213,7 +214,7 @@ class Monitor:
 		log.debug('starting message receive loop...')
 		while True:
 			data = self.serial.readline()
-			IO.current().add_callback(self.route_command, data)
+			self.loop.add_callback(self.route_command, data)
 
 	def upload_rx(self, output, callsign, locator):
 		log.info('uploading RX batch...')
