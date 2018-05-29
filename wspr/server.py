@@ -14,46 +14,46 @@ PORT = 8080
 monitor = None
 
 def create_app():
-	global monitor
+    global monitor
 
-	router = Router()
-	monitor = Monitor(router)
-	router.hardware_agent = monitor
+    router = Router()
+    monitor = Monitor(router)
+    router.hardware_agent = monitor
 
-	return WebApp([
-		(r'/', IndexEndpoint),
-		(r'/bundle.js', BundleEndpoint),
-		(r'/spots', SpotEndpoint, {'router': router}),
-		(r'/proxy', WebSpotEndpoint),
-		(r'/config', ConfigEndpoint, {'router': router})
-	])
+    return WebApp([
+        (r'/', IndexEndpoint),
+        (r'/bundle.js', BundleEndpoint),
+        (r'/spots', SpotEndpoint, {'router': router}),
+        (r'/proxy', WebSpotEndpoint),
+        (r'/config', ConfigEndpoint, {'router': router})
+    ])
 
 def handle_interrupt(sig, frame):
-	log.info('interrupted, shutting down...')
-	log.debug('cleaning up...')
-	monitor.cleanup()
-	log.debug('cleanup done, calling exit()...')
-	exit(0)
-	
+    log.info('interrupted, shutting down...')
+    log.debug('cleaning up...')
+    monitor.cleanup()
+    log.debug('cleanup done, calling exit()...')
+    exit(0)
+    
 def setup():
-	log_level = log.DEBUG if os.environ.get('WSPR_DEBUG') else log.INFO
-	log.basicConfig(format='%(levelname)s:\t%(message)s', level=log_level)
-	signal(SIGINT, handle_interrupt)
-	signal(SIGTERM, handle_interrupt)
+    log_level = log.DEBUG if os.environ.get('WSPR_DEBUG') else log.INFO
+    log.basicConfig(format='%(levelname)s:\t%(message)s', level=log_level)
+    signal(SIGINT, handle_interrupt)
+    signal(SIGTERM, handle_interrupt)
 
 def run():
-	setup()
-	log.debug('application startup...')
+    setup()
+    log.debug('application startup...')
 
-	app = create_app()
-	log.debug('application created')
-	app.listen(PORT)
-	log.info('application listening on port %d', PORT)
+    app = create_app()
+    log.debug('application created')
+    app.listen(PORT)
+    log.info('application listening on port %d', PORT)
 
-	log.debug('hardware monitor start...')
-	monitor.go()
-	PeriodicCallback(monitor.heartbeat, 1000).start()
-	log.debug('monitor started')
+    log.debug('hardware monitor start...')
+    monitor.go()
+    PeriodicCallback(monitor.heartbeat, 1000).start()
+    log.debug('monitor started')
 
-	log.debug('starting I/O loop...')
-	IO.current().start()
+    log.debug('starting I/O loop...')
+    IO.current().start()
