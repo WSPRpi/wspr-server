@@ -178,7 +178,7 @@ class Bandhop {
 		for(var j = 0; j < 12; j++) {
 			let enabled = txdisable[j] == '0'
 			this.tx_lights[j].attr({
-				fill: enabled ? 'green' : 'red'
+				fill: enabled ? 'green' : 'grey'
 			})
 		}
 	}
