@@ -34,3 +34,10 @@
 	width: 100%;
 	height: auto;
 }
+
+#config-status
+{
+	display: block;
+	width: 100%;
+	text-align: right;
+}
