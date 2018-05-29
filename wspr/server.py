@@ -13,6 +13,7 @@ from wspr.monitor import Monitor
 PORT = 8080
 monitor = None
 
+
 def create_app():
     global monitor
 
@@ -28,18 +29,21 @@ def create_app():
         (r'/config', ConfigEndpoint, {'router': router})
     ])
 
+
 def handle_interrupt(sig, frame):
     log.info('interrupted, shutting down...')
     log.debug('cleaning up...')
     monitor.cleanup()
     log.debug('cleanup done, calling exit()...')
     exit(0)
-    
+
+
 def setup():
     log_level = log.DEBUG if os.environ.get('WSPR_DEBUG') else log.INFO
     log.basicConfig(format='%(levelname)s:\t%(message)s', level=log_level)
     signal(SIGINT, handle_interrupt)
     signal(SIGTERM, handle_interrupt)
+
 
 def run():
     setup()

@@ -17,6 +17,7 @@ else:
     from serial import Serial
     import RPi.GPIO as GPIO
 
+
 class Monitor:
     def __init__(self, router):
         self.loop = IO.current()
@@ -95,9 +96,9 @@ class Monitor:
 
     def handle_ip(self, data):
         log.debug('retrieving IP...')
-        ip = check_output(['hostname' , '-I'])\
-            .decode('ascii')\
-            .strip()\
+        ip = check_output(['hostname', '-I']) \
+            .decode('ascii') \
+            .strip() \
             .split(' ')[0]
         log.debug('IP was %s', ip)
         self.router.set_from_hardware('ip', ip)
@@ -145,7 +146,7 @@ class Monitor:
         log.debug("running exec()...")
         os.execlp("wspr-server", "wspr-server")
   # process replaced, job done
-  
+
     def handle_software_upgrade(self, data):
         log.info("software upgrade start...")
         self.upgrade_log("upgrading software...")
@@ -184,7 +185,7 @@ class Monitor:
 
     def handle_heartbeat(self, data):
         self.router.heartbeat()
-        
+
     def send_data(self, command, rest):
         formatted = for_wire(command, rest)
         self.serial.write(formatted)
@@ -203,12 +204,12 @@ class Monitor:
 
         returned = handler(rest)
         if returned is not None:
-            self.send_data(*returned)
-        
+            self.send_data( * returned)
+
     def manage_serial(self):
         log.debug('sending startup messages...')
         for message in self.startup_messages:
-            self.send_data(*message)
+            self.send_data( * message)
         log.debug('startup messages sent')
 
         log.debug('starting message receive loop...')
@@ -232,7 +233,7 @@ class Monitor:
             log.info('...uploaded.')
         except:
             log.exception('upload failed')
-        
+
     def parse_rx(self, output, callsign, locator):
         tabular = [
             line.split()
@@ -255,7 +256,7 @@ class Monitor:
         ]
 
     def manage_rx(self):
-        sleep(5) # make sure everything's populated first
+        sleep(5)  # make sure everything's populated first
         log.debug('starting RX loop...')
 
         while True:

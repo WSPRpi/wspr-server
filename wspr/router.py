@@ -1,5 +1,6 @@
 import logging as log
 
+
 class Router:
     def __init__(self):
         self._state = {
@@ -37,7 +38,7 @@ class Router:
         self._state[key] = value
         for agent in self._software_agents:
             agent.on_state_change(key, value)
-        
+
     def set_from_software(self, key, value):
         log.debug('software changed state: %s = %s', key, value)
         self._state[key] = value

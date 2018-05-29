@@ -3,11 +3,13 @@ import os
 from time import sleep
 from requests import get as download
 
+
 def execute(log, *args):
     try:
         return Popen(args, stdout=PIPE)
     except FileNotFoundError:
         log("error: {} not found".format(args[0]))
+
 
 def software_upgrade(log):
     log("running `pip3 install --upgrade wspr-server`...")
@@ -21,6 +23,7 @@ def software_upgrade(log):
     log("pip returned {}".format(ret))
 
     return not bool(ret)
+
 
 def firmware_upgrade(log, program_mode):
     try:

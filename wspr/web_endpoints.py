@@ -7,15 +7,18 @@ from pkg_resources import resource_string
 from re import search as regex
 from requests import Session
 
+
 class IndexEndpoint(RequestHandler):
     def get(self):
         self.write(resource_string('static', 'index.html'))
         log.debug('index page retrieved')
 
+
 class BundleEndpoint(RequestHandler):
     def get(self):
         self.write(resource_string('static', 'bundle.js'))
         log.debug('frontend js retrieved')
+
 
 class SpotEndpoint(RequestHandler):
     def initialize(self, router=None):
@@ -71,6 +74,7 @@ class SpotEndpoint(RequestHandler):
                     filtered.append(spot)
             spots = filtered
         self.write({'spots': spots})
+
 
 class WebSpotEndpoint(RequestHandler):
     def retrieve(self, params):

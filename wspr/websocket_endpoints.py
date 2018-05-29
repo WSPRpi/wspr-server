@@ -2,6 +2,7 @@ from json import loads as load_json
 import logging as log
 from tornado.websocket import WebSocketHandler
 
+
 class ConfigEndpoint(WebSocketHandler):
     def send_data(self, key, value):
         log.debug('sending data to client: %s = %s', key, value)

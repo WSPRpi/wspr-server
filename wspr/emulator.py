@@ -6,8 +6,10 @@ from random import randint
 
 from wspr.wire_format import for_wire, from_wire
 
+
 def get_time_as_string():
     return check_output(['date', '+%T']).decode('ascii').strip()
+
 
 class Serial:
     def __init__(self, *args, **kwargs):
@@ -35,11 +37,12 @@ class Serial:
             return self.readline()
 
     def write(self, data):
-        data = data + b'\n' # actual serial library does this for us
+        data = data + b'\n'  # actual serial library does this for us
         command, rest = from_wire(data)
 
         if command == 'U' or command == 'F':
             self.responses.put((command, ''))
+
 
 class GPIO:
     LOW = 0
