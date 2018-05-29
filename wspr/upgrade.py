@@ -39,7 +39,7 @@ def firmware_upgrade(log, program_mode):
         with open('/tmp/wspr-firmware.hex', 'wb') as f:
             f.write(hex)
         log("...saved to /tmp/wspr-firmware.hex.")
-    except e:
+    except Exception as e:
         log("networking error - as follows")
         log("{}".format(e))
         return False

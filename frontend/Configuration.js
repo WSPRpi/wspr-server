@@ -69,6 +69,7 @@ class Configuration {
 		this.output_callsign = callsign
 		this.upgrade_dialog = upgrade_dialog
 		this.upgrade_log = upgrade_log
+		this.upgrade_ongoing = false
 		this.lost_contact = lost_contact
 
 		this.callsign = $(this.form[0].elements.callsign)
@@ -153,7 +154,7 @@ class Configuration {
 			let now = moment.utc()
 			let ms = now.diff(this.lastHeartbeat, 'milliseconds')
 
-			if(ms > 5000) {
+			if(ms > 5000 && !this.upgrade_ongoing) {
 				this.lost_contact.modal({
 					backdrop: 'static',
 					keyboard: false
@@ -229,10 +230,12 @@ class Configuration {
 			this.onSync()
 			break
 		case 'upgrade-log':
+			this.upgrade_ongoing = true
 			this.upgrade_dialog.modal({backdrop: 'static', keyboard: false})
 			this.upgrade_log.append(data.value + '\n')
 			break
 		case 'upgrade-success':
+			this.upgrade_ongoing = false
 			reload()
 			break
 		case 'heartbeat':
