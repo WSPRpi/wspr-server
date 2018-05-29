@@ -21,7 +21,7 @@ class Serial:
         self.responses.put(('G', 'AA00aa'))
         self.responses.put(('L', 'GPS'))
         self.responses.put(('P', '10'))
-        self.responses.put(('B', ','.join(['2'] * 24)))
+        self.responses.put(('B', ','.join(['A'] * 24)))
         self.responses.put(('D', ','.join(['0'] * 12)))
         self.responses.put(('X', '010'))
         self.responses.put(('V', 'emulator-0.1'))
