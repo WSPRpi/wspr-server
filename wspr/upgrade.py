@@ -6,7 +6,6 @@ from requests import get as download
 
 def execute(log, *args):
     try:
-        raise FileNotFoundError("test")
         return Popen(args, stdout=PIPE)
     except FileNotFoundError as e:
         log("error: {} not found".format(args[0]))
