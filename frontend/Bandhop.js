@@ -2,7 +2,7 @@ import SVG from 'svgjs'
 import $ from 'jquery'
 
 const band_reservation = 13
-const hour_reservation = 10
+const hour_reservation = 20
 const dx = (100 - band_reservation) / 24
 const dy = (100 - hour_reservation) / 12
 
@@ -74,6 +74,10 @@ class Bandhop {
 				`${100 - hour_reservation}%`
 			)
 		}
+		this.svg.text("Time of Day (UTC)").move(
+			`${band_reservation + 9 * dx}%`,
+			`${100 - hour_reservation / 2}%`
+		)
 
 		for(var j = 0; j < 12; j++) {
 			let y = j * dy
