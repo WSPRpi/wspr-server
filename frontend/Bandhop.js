@@ -78,10 +78,23 @@ class Bandhop {
 		for(var j = 0; j < 12; j++) {
 			let y = j * dy
 
-			this.svg.text(this.bands[j]).move(
+			let bandlabel = this.svg.text(this.bands[j]).move(
 				`5%`,
 				`${y}%`,
 			)
+			$(bandlabel.node).css({
+				cursor: 'pointer'
+			})
+			let target = j
+			bandlabel.click(() => {
+				if(confirm("Set all times to this band?")) {
+					let bandhop = this.getBandhop()
+					for(var hour = 0; hour < 24; hour++) {
+						bandhop[hour] = target
+					}
+					this.setBandhop(bandhop)
+				}
+			})
 
 			// TX lights
 			let tx = this.svg.text('TX').move(
