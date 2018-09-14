@@ -11,7 +11,8 @@ The commands are as follows. Where it makes sense, the command data may be empty
 * I for Ip address. Only ever queried, used to display on the hardware output.
 * H for Hostname. Only ever queried, is the name of the machine the software runs on.
 * C for Callsign. Callsigns are 10 or fewer characters, and contain exactly 0 or 1 slashes. If there is a slash, there must be 1 to 3 characters before the slash, OR either one alphanumeric or two numeric characters after the slash at the end of the callsign. The main callsign (not the beginning or end before/after a slash) must have a number in second/third character.
-* L for Locator. Locators are 6-character maidenhead locators, or the special value 'GPS' to indicate the hardware should use its onboard GPS.
+* L for Locator. Locators are 6-character maidenhead locators, for a user-specified locator.
+* M for locator Mode. Either 'G' to use the GPS-provided locator, or 'L' to use the user-specified locator.
 * P for Power. Power is specified in dBm, from 0-60, and is always an integral number between 0 and 60, ending in 0, 3, or 7. Milliwatt conversions are calculated in the frontend for user convenience.
 * B for Band-hop. A comma-separated list of single hexadecimal digits. 24 values, one for each hour in the day.
 * X for tX percentage. Exactly 3 digits specifying 0-100, multiple of 10.

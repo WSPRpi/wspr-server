@@ -167,7 +167,6 @@ class Configuration {
 	setGPS() {
 		this.gps.prop('checked', true)
 		this.locator.prop('readonly', true)
-		this.locator.val('GPS')
 	}
 
 	unsetGPS() {
@@ -205,12 +204,7 @@ class Configuration {
 			this.onSync()
 			break
 		case 'locator':
-			if(data.value == 'GPS')
-				this.setGPS()
-			else {
-				this.unsetGPS()
-				this.locator.val(data.value)
-			}
+			this.locator.val(data.value)
 			this.onSync()
 			break
 		case 'power':
@@ -228,6 +222,14 @@ class Configuration {
 		case 'tx_disable':
 			this.bandhopper.setTxDisable(data.value)
 			this.onSync()
+			break
+		case 'locator_mode':
+			if(data.value == 'G') {
+				this.setGPS()
+			}
+			else {
+				this.unsetGPS()
+			}
 			break
 		case 'upgrade-log':
 			this.upgrade_ongoing = true

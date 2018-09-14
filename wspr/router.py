@@ -4,11 +4,12 @@ import logging as log
 class Router:
     def __init__(self):
         self._state = {
-                        'hostname': 'localhost',
-                        'ip': '0.0.0.0',
+            'hostname': 'localhost',
+            'ip': '0.0.0.0',
             'callsign': '',
             'gps': 'AA00aa',
-            'locator': 'GPS',
+            'locator': 'AA00aa',
+            'locator_mode': 'G',
             'power': 10,
             'bandhop': ['0'] * 24,
             'tx_disable': ['0'] * 12,

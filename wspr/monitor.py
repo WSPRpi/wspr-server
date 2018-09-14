@@ -39,6 +39,7 @@ class Monitor:
             'C': self.handle_callsign,
             'G': self.handle_gps,
             'L': self.handle_locator,
+            'M': self.handle_locator_mode,
             'P': self.handle_power,
             'B': self.handle_bandhop,
             'D': self.handle_tx_disable,
@@ -55,6 +56,7 @@ class Monitor:
             ('C', ''),
             ('G', ''),
             ('L', ''),
+            ('M', ''),
             ('P', ''),
             ('B', ''),
             ('D', ''),
@@ -112,6 +114,9 @@ class Monitor:
 
     def handle_locator(self, data):
         self.router.set_from_hardware('locator', data)
+
+    def handle_locator_mode(self, data):
+        self.router.set_from_hardware('locator_mode', data)
 
     def handle_power(self, data):
         self.router.set_from_hardware('power', int(data))
@@ -204,12 +209,12 @@ class Monitor:
 
         returned = handler(rest)
         if returned is not None:
-            self.send_data( * returned)
+            self.send_data(*returned)
 
     def manage_serial(self):
         log.debug('sending startup messages...')
         for message in self.startup_messages:
-            self.send_data( * message)
+            self.send_data(*message)
         log.debug('startup messages sent')
 
         log.debug('starting message receive loop...')
