@@ -10,7 +10,7 @@ The software takes no command-line arguments, but responds to environment variab
 * If `WSPR_DISABLE_RX` is set, the software will not collect/upload received spots.
 
 ## Prerequisites
-The software is built and runs with Python 3.5.
+The software is built and runs with Python 3.6.
 Other Python versions may or may not work as intended.
 If the software is not run in emulation mode, it is expected that the hardware is configured. Unexpected results may occur otherwise.
 
