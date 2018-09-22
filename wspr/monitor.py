@@ -161,7 +161,6 @@ class Monitor:
             log.info("...software upgrade complete")
             self.upgrade_log("upgrade complete - restarting...")
             self.router.upgrade_success()
-            self.reset(False)
             self.restart()
         else:
             log.info("...software upgrade failed")
