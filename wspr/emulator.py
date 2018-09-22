@@ -44,6 +44,8 @@ class Serial:
         if command == 'U' or command == 'F':
             self.responses.put((command, ''))
 
+    def close(self):
+        pass
 
 class GPIO:
     LOW = 0

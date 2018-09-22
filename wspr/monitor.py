@@ -170,6 +170,10 @@ class Monitor:
 
         # hardware program invocation
         def program_mode():
+            self.upgrade_log("releasing PIC serial port")
+            self.serial.close()
+            self.upgrade_log("serial port released")
+
             self.upgrade_log("putting PIC into program mode...")
             self.program(True)
             self.reset(True)
@@ -341,17 +345,15 @@ class Monitor:
             GPIO.HIGH if high else GPIO.LOW
         )
         log.debug("reset pin set", high)
-        sleep(0.1)
+        sleep(0.5)
 
     def program(self, high):
-        if not high:
-            sleep(0.1)
         log.debug("setting program pin = %d", high)
         GPIO.output(
             self.program_port,
             GPIO.HIGH if high else GPIO.LOW
         )
-        sleep(0.1)
+        sleep(0.5)
 
     def cleanup(self):
         GPIO.cleanup()
