@@ -46,7 +46,7 @@ function locatorCheck($el) {
 }
 
 async function reload() {
-	await new Promise(r => setTimeout(r, 3000))
+	await new Promise(r => setTimeout(r, 10000))
 	location.reload(true)
 }
 

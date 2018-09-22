@@ -209,7 +209,7 @@ class Bandhop {
 	}
 
 	setBandhop(bandhop) {
-		bandhop = bandhop.map(x => x.toString(16)).join(',')
+		bandhop = bandhop.map(x => x.toString(16).toUpperCase()).join(',')
 		this.bandhop.val(bandhop)
 		this.bandhop.trigger('change')
 		this.redraw()

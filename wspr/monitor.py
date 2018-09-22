@@ -147,11 +147,9 @@ class Monitor:
         self.router.upgrade_log(message)
 
     def restart(self):
-        log.debug("cleaning up...")
-        self.cleanup()
         log.debug("running exec()...")
         os.execlp("wspr-server", "wspr-server")
-  # process replaced, job done
+        # process replaced, job done
 
     def handle_software_upgrade(self, data):
         log.info("software upgrade start...")
