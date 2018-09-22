@@ -84,6 +84,7 @@ class Monitor:
         GPIO.setup(self.heartbeat_port, GPIO.OUT)
         GPIO.setup(self.reset_port, GPIO.OUT)
         GPIO.setup(self.program_port, GPIO.OUT)
+        self.reset(False)
 
         # populate hostname and IP for the frontend
         self.handle_hostname(None)
@@ -337,11 +338,12 @@ class Monitor:
         )
 
     def reset(self, high):
-        log.debug("setting reset pin = %d", high)
+        log.debug("setting reset pin = %d...", high)
         GPIO.output(
             self.reset_port,
             GPIO.HIGH if high else GPIO.LOW
         )
+        log.debug("reset pin set", high)
         sleep(0.1)
 
     def program(self, high):
