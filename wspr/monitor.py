@@ -344,7 +344,7 @@ class Monitor:
             self.reset_port,
             GPIO.HIGH if high else GPIO.LOW
         )
-        log.debug("reset pin set", high)
+        log.debug("reset pin set")
         sleep(0.5)
 
     def program(self, high):
@@ -353,6 +353,7 @@ class Monitor:
             self.program_port,
             GPIO.HIGH if high else GPIO.LOW
         )
+        log.debug("program pin set")
         sleep(0.5)
 
     def cleanup(self):
